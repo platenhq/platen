@@ -10,6 +10,12 @@ const CodeActionMenuPlugin = dynamic(() => import("./plugins/codeActionMenuPlugi
 const FloatingLinkEditorPlugin = dynamic(() => import("./plugins/floatingLinkEditorPlugin"), {
   ssr: false,
 });
+const TableCellActionMenuPlugin = dynamic(() => import("./plugins/TableCellActionMenuPlugin"), {
+  ssr: false,
+});
+const TableCellResizerPlugin = dynamic(() => import("./plugins/TableCellResizerPlugin"), {
+  ssr: false,
+});
 
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
@@ -135,6 +141,7 @@ export function Editor({ roomId, currentUserType }: Editorprops) {
                 <CodeHighlightPlugin />
                 <TablePlugin />
                 <TableEscapePlugin />
+                <TableCellResizerPlugin />
                 <HorizontalRulePlugin />
                 <PageBreakPlugin />
                 {floatingAnchorElem && !isSmallWidthViewport && (
@@ -145,6 +152,7 @@ export function Editor({ roomId, currentUserType }: Editorprops) {
                       isLinkEditMode={isLinkEditMode}
                       setIsLinkEditMode={setIsLinkEditMode}
                     />
+                    <TableCellActionMenuPlugin anchorElem={floatingAnchorElem} />
                   </>
                 )}
                 <LinkPlugin hasLinkAttributes={hasLinkAttributes} />
