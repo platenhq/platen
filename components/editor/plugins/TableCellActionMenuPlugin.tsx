@@ -176,21 +176,43 @@ export default function TableCellActionMenuPlugin({
   }, [editor, anchorElem, isOpen, cellMerge]);
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+
+    const callback = () => {
+      timeoutId = undefined;
+      updateMenu();
+    };
+
+    const delayedCallback = () => {
+      if (timeoutId === undefined) {
+        timeoutId = setTimeout(callback, 0);
+      }
+      return false;
+    };
+
     return mergeRegister(
-      editor.registerCommand(
-        SELECTION_CHANGE_COMMAND,
-        () => {
-          updateMenu();
-          return false;
-        },
-        COMMAND_PRIORITY_CRITICAL,
-      ),
+      editor.registerUpdateListener(delayedCallback),
+      editor.registerCommand(SELECTION_CHANGE_COMMAND, delayedCallback, COMMAND_PRIORITY_CRITICAL),
       editor.registerMutationListener(TableCellNode, () => {
-        updateMenu();
+        delayedCallback();
       }),
       editor.registerMutationListener(TableNode, () => {
-        updateMenu();
+        delayedCallback();
       }),
+      editor.registerRootListener((rootElement) => {
+        if (rootElement) {
+          delayedCallback();
+          rootElement.addEventListener("pointerup", delayedCallback);
+          return () => {
+            rootElement.removeEventListener("pointerup", delayedCallback);
+          };
+        }
+      }),
+      () => {
+        if (timeoutId !== undefined) {
+          clearTimeout(timeoutId);
+        }
+      },
     );
   }, [editor, updateMenu]);
 
