@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Header from "@/components/shared/Header";
 import Notifications from "@/components/liveblocks/Notifications";
+import NotificationsErrorBoundary from "@/components/liveblocks/NotificationsErrorBoundary";
 import ClerkSignedInUserButton from "@/components/shared/ClerkSignedInUserButton";
 import { ToggleTheme } from "@/components/shared/ToggleTheme";
 import NewDocumentSection from "@/components/home/NewDocumentSection";
@@ -49,7 +50,9 @@ export const HomeDashboard = ({ userId, email, roomDocuments }: HomeDashboardPro
 
         {/* Right Navigation & Profile */}
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <Notifications />
+          <NotificationsErrorBoundary>
+            <Notifications />
+          </NotificationsErrorBoundary>
           <ToggleTheme />
           <ClerkSignedInUserButton />
         </div>

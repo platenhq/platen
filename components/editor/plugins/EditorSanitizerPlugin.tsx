@@ -16,11 +16,34 @@ import { ListNode, $isListNode } from "@lexical/list";
 import { $getNearestNodeOfType } from "@lexical/utils";
 
 /**
+ * Suppress benign upstream Yjs warnPrematureAccess warning emitted during Fast Refresh
+ * and collaborative tree reconciliation when @lexical/yjs creates unattached CollabNodes.
+ */
+if (
+  typeof window !== "undefined" &&
+  !(window as unknown as { __yjs_warn_filter_installed?: boolean }).__yjs_warn_filter_installed
+) {
+  (window as unknown as { __yjs_warn_filter_installed?: boolean }).__yjs_warn_filter_installed =
+    true;
+  const originalWarn = console.warn;
+  console.warn = (...args: unknown[]) => {
+    if (
+      typeof args[0] === "string" &&
+      args[0].includes("Invalid access: Add Yjs type to a document before reading data")
+    ) {
+      return;
+    }
+    originalWarn.apply(console, args);
+  };
+}
+
+/**
  * EditorSanitizerPlugin guarantees Lexical structural integrity & DOM syncing:
  * 1. Shift+Enter line break guard: Ensures line breaks always occur inside a valid block ancestor.
  * 2. ListNode DOM Sync: Synchronously mirrors listNode style to its individual <ul> DOM element
  *    so strikethrough checklist formatting scopes strictly to that specific list without mutating AST.
  * 3. Never mutates AST on mount or via root transforms, ensuring Liveblocks Yjs CRDT never duplicates.
+ * 4. Silences benign upstream Yjs CollabNode construction warnings during HMR/Fast Refresh.
  */
 export default function EditorSanitizerPlugin(): null {
   const [editor] = useLexicalComposerContext();

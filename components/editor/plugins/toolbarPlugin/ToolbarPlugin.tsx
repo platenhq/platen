@@ -21,6 +21,12 @@ import {
 } from "lexical";
 import { $isHeadingNode } from "@lexical/rich-text";
 import { $findMatchingParent } from "@lexical/utils";
+import {
+  $getTableCellNodeFromLexicalNode,
+  $isTableCellNode,
+  $isTableNode,
+  $isTableSelection,
+} from "@lexical/table";
 import React, { Dispatch, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Bold,
@@ -42,7 +48,7 @@ import {
 } from "@/components/ui/custom/CustomDropdown";
 import BlockFormatDropDown from "./dropdowns/BlockFormatDropdown";
 import { blockTypeToBlockName, useToolbarState } from "@/context/ToolbarContext";
-import { CODE_LANGUAGE_OPTIONS, getSelectedNode } from "./utils";
+import { CODE_LANGUAGE_OPTIONS, getSelectedNode, getStyleProperty } from "./utils";
 import { FontDropDown } from "./dropdowns/FontDropdown";
 import { $getSelectionStyleValueForProperty } from "@lexical/selection";
 import { ElementFormatDropdown } from "./dropdowns/ElementFormatDropdown";
@@ -70,6 +76,7 @@ import {
   CustomPopoverContent,
 } from "@/components/ui/custom/CustomPopover";
 import { TableGridPicker } from "./dropdowns/TableGridPicker";
+import TableContextualToolbar from "./dropdowns/TableContextualToolbar";
 
 const LowPriority = 1;
 
@@ -121,21 +128,101 @@ export default function ToolbarPlugin({
 
   // Compute dynamic cutoff index based on available toolbar container width
   const cutoffIndex = useMemo<number>(() => {
-    if (containerWidth >= 1200) return 10; // All 10 groups fit, More Options hidden
-    if (containerWidth >= 1110) return 9; // Group 9 overflows (Clear formatting, Page setup)
-    if (containerWidth >= 1030) return 8; // Group 8 & 9 overflow (Indent controls)
-    if (containerWidth >= 920) return 7; // Group 7..9 overflow (Lists)
-    if (containerWidth >= 810) return 6; // Group 6..9 overflow (Alignment, Spacing)
-    if (containerWidth >= 720) return 5; // Group 5..9 overflow (Link, Table)
-    if (containerWidth >= 590) return 4; // Group 4..9 overflow (Bold, Italic, Underline, Colors)
-    if (containerWidth >= 480) return 3; // Group 3..9 overflow (Font Size)
+    const tableOffset = toolbarState.isTable ? 170 : 0;
+    const effectiveWidth = containerWidth - tableOffset;
+
+    if (effectiveWidth >= 1200) return 10; // All 10 groups fit, More Options hidden
+    if (effectiveWidth >= 1110) return 9; // Group 9 overflows (Clear formatting, Page setup)
+    if (effectiveWidth >= 1030) return 8; // Group 8 & 9 overflow (Indent controls)
+    if (effectiveWidth >= 920) return 7; // Group 7..9 overflow (Lists)
+    if (effectiveWidth >= 810) return 6; // Group 6..9 overflow (Alignment, Spacing)
+    if (effectiveWidth >= 720) return 5; // Group 5..9 overflow (Link, Table)
+    if (effectiveWidth >= 590) return 4; // Group 4..9 overflow (Bold, Italic, Underline, Colors)
+    if (effectiveWidth >= 480) return 3; // Group 3..9 overflow (Font Size)
     return 2; // Group 2..9 overflow (Font Family)
-  }, [containerWidth]);
+  }, [containerWidth, toolbarState.isTable]);
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
 
-    if ($isRangeSelection(selection)) {
+    if (!$isRangeSelection(selection) && !$isTableSelection(selection)) {
+      updateToolbarState("isTable", false);
+      updateToolbarState("rootType", "root");
+      return;
+    }
+
+    let isTable = false;
+    let tableCellBgColor = "";
+    let tableBorderColor = "#000000";
+    let tableBorderWidth = "1px";
+    let tableCellVerticalAlign: "top" | "middle" | "bottom" = "top";
+
+    if ($isTableSelection(selection)) {
+      isTable = true;
+      updateToolbarState("isBold", selection.hasFormat("bold"));
+      updateToolbarState("isItalic", selection.hasFormat("italic"));
+      updateToolbarState("isUnderline", selection.hasFormat("underline"));
+      updateToolbarState("isStrikethrough", selection.hasFormat("strikethrough"));
+
+      const nodes = selection.getNodes();
+      const firstCell = nodes.find($isTableCellNode);
+      if ($isTableCellNode(firstCell)) {
+        tableCellBgColor = firstCell.getBackgroundColor() || "";
+        tableCellVerticalAlign =
+          (firstCell.getVerticalAlign() as "top" | "middle" | "bottom") || "top";
+
+        const cellStyle = firstCell.getStyle() || "";
+        const cellBorderColor =
+          getStyleProperty(cellStyle, "--cell-border-color") ||
+          getStyleProperty(cellStyle, "border-color");
+        const cellBorderWidth =
+          getStyleProperty(cellStyle, "--cell-border-width") ||
+          getStyleProperty(cellStyle, "border-width");
+
+        const tableNode = $findMatchingParent(firstCell, $isTableNode);
+        if ($isTableNode(tableNode)) {
+          const style = tableNode.getStyle() || "";
+          const borderColor = getStyleProperty(style, "--table-border-color");
+          if (borderColor) tableBorderColor = borderColor;
+          const borderWidth = getStyleProperty(style, "--table-border-width");
+          if (borderWidth) tableBorderWidth = borderWidth;
+        }
+        if (cellBorderColor) tableBorderColor = cellBorderColor;
+        if (cellBorderWidth) tableBorderWidth = cellBorderWidth;
+      }
+    } else if ($isRangeSelection(selection)) {
+      const anchorNode = selection.anchor.getNode();
+      const cellNode = $getTableCellNodeFromLexicalNode(anchorNode);
+      if ($isTableCellNode(cellNode)) {
+        isTable = true;
+        tableCellBgColor = cellNode.getBackgroundColor() || "";
+        tableCellVerticalAlign =
+          (cellNode.getVerticalAlign() as "top" | "middle" | "bottom") || "top";
+
+        const cellStyle = cellNode.getStyle() || "";
+        const cellBorderColor =
+          getStyleProperty(cellStyle, "--cell-border-color") ||
+          getStyleProperty(cellStyle, "border-color");
+        const cellBorderWidth =
+          getStyleProperty(cellStyle, "--cell-border-width") ||
+          getStyleProperty(cellStyle, "border-width");
+
+        const tableNode = $findMatchingParent(cellNode, $isTableNode);
+        if ($isTableNode(tableNode)) {
+          const style = tableNode.getStyle() || "";
+          const borderColor =
+            getStyleProperty(style, "border-color") ||
+            getStyleProperty(style, "--table-border-color");
+          if (borderColor) tableBorderColor = borderColor;
+          const borderWidth =
+            getStyleProperty(style, "border-width") ||
+            getStyleProperty(style, "--table-border-width");
+          if (borderWidth) tableBorderWidth = borderWidth;
+        }
+        if (cellBorderColor) tableBorderColor = cellBorderColor;
+        if (cellBorderWidth) tableBorderWidth = cellBorderWidth;
+      }
+
       // 1. Text Formatting Flags
       updateToolbarState("isBold", selection.hasFormat("bold"));
       updateToolbarState("isItalic", selection.hasFormat("italic"));
@@ -149,7 +236,6 @@ export default function ToolbarPlugin({
       updateToolbarState("isCode", selection.hasFormat("code"));
 
       // 2. Node Type & Block Formats
-      const anchorNode = selection.anchor.getNode();
       let element =
         anchorNode.getKey() === "root"
           ? anchorNode
@@ -238,6 +324,13 @@ export default function ToolbarPlugin({
         updateToolbarState("isLink", false);
       }
     }
+
+    updateToolbarState("isTable", isTable);
+    updateToolbarState("rootType", isTable ? "table" : "root");
+    updateToolbarState("tableCellBgColor", tableCellBgColor);
+    updateToolbarState("tableBorderColor", tableBorderColor);
+    updateToolbarState("tableBorderWidth", tableBorderWidth);
+    updateToolbarState("tableCellVerticalAlign", tableCellVerticalAlign);
   }, [editor, updateToolbarState]);
 
   useEffect(() => {
@@ -583,6 +676,14 @@ export default function ToolbarPlugin({
       {cutoffIndex > 5 && (
         <>
           {renderGroup5()}
+          <Divider />
+        </>
+      )}
+
+      {/* Contextual Table Toolbar (Active when cursor/selection is in a table) */}
+      {toolbarState.isTable && (
+        <>
+          <TableContextualToolbar disabled={!isEditable} />
           <Divider />
         </>
       )}

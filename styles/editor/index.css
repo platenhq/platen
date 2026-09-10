@@ -350,23 +350,31 @@ pre::-webkit-scrollbar-thumb {
 }
 
 /* --------------  TABLES ---------------*/
+/* 
+  table-layout:fixed only works with an explicit width. We need width:100% so
+  the colWidths set by TableCellResizerPlugin map 1:1 to rendered pixels.
+  Removing this causes the browser to use auto layout and column resizing
+  will undershoot (visually 30-40% of the actual drag distance). 
+*/
 .editor-table {
   border-collapse: collapse;
   border-spacing: 0;
-  max-width: 100%;
-  table-layout: fixed;
   width: 100%;
+  table-layout: fixed;
   margin: 16px 0;
 }
 
 .editor-tableCell {
-  border: 1px solid #c7c7c7;
-  min-width: 75px;
+  border: 1px solid #000000;
+  /* 50px matches MIN_COLUMN_WIDTH in TableCellResizerPlugin — prevents cells
+     from collapsing below the drag minimum when the browser distributes space. */
+  min-width: 50px;
   vertical-align: top;
   text-align: start;
-  padding: 8px;
+  padding: 6px 8px;
   position: relative;
-  outline: none;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .editor-tableCellHeader {
@@ -388,6 +396,20 @@ pre::-webkit-scrollbar-thumb {
 
 .dark .editor-tableCellSelected {
   background-color: #1e3a5f;
+}
+
+/* Table Cell Resizer interactive drag handles */
+.TableCellResizer__resizer {
+  position: absolute;
+  touch-action: none;
+  z-index: 25;
+}
+
+@media (pointer: coarse) {
+  .TableCellResizer__resizer {
+    background-color: #1a73e8;
+    mix-blend-mode: color;
+  }
 }
 
 /* -------------- PAGE CANVAS & MULTI-PAGE VIEWPORT LAYOUT --------------- */

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Plus, Ban, Check } from "lucide-react";
 import CustomColorModal from "@/components/ui/custom/CustomColorModal";
+import { cn } from "@/lib/utils";
 
 // 10-column Google Docs Swatch Palette Matrix
 export const GOOGLE_DOCS_COLOR_PALETTE = [
@@ -119,6 +120,9 @@ export interface CustomColorPickerProps {
   noneLabel?: string;
   onClose?: () => void;
   onOpenCustomModal?: () => void;
+  headerSlot?: React.ReactNode;
+  size?: "sm" | "md" | "lg";
+  className?: string;
 }
 
 export default function CustomColorPicker({
@@ -128,9 +132,15 @@ export default function CustomColorPicker({
   noneLabel = "None",
   onClose,
   onOpenCustomModal,
+  headerSlot,
+  size = "md",
+  className,
 }: CustomColorPickerProps): React.JSX.Element {
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [customColors, setCustomColors] = useState<string[]>([]);
+
+  const widthClass = size === "lg" ? "w-80" : size === "sm" ? "w-56" : "w-64";
+  const swatchSizeClass = size === "lg" ? "size-6" : "size-5";
 
   const handleSelect = (color: string | null) => {
     onSelectColor(color);
@@ -157,13 +167,20 @@ export default function CustomColorPicker({
   return (
     <div
       onMouseDown={(e) => e.preventDefault()}
-      className="border-border bg-surface text-foreground w-64 rounded-lg border p-3 shadow-xl select-none"
+      className={cn(
+        "border-border bg-surface text-foreground rounded-lg border p-3 shadow-xl select-none",
+        widthClass,
+        className,
+      )}
     >
+      {headerSlot && <div className="mb-2.5">{headerSlot}</div>}
+
       {/* Optional "None / Transparent" option (used for Highlight Background) */}
       {showNoneOption && (
         <div className="border-border mb-2.5 border-b pb-2">
           <button
             type="button"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => handleSelect(null)}
             className={`hover:bg-muted flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors ${
               !currentColor || currentColor === "transparent" || currentColor === "none"
@@ -188,12 +205,15 @@ export default function CustomColorPicker({
                   key={color}
                   type="button"
                   title={color}
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => handleSelect(color)}
-                  className={`flex size-5 shrink-0 items-center justify-center rounded-sm border transition-transform hover:z-10 hover:scale-115 focus:outline-none ${
+                  className={cn(
+                    "flex shrink-0 cursor-pointer items-center justify-center rounded-sm border transition-transform hover:z-10 hover:scale-115 focus:outline-none",
+                    swatchSizeClass,
                     color === "#ffffff"
                       ? "border-slate-300 dark:border-slate-600"
-                      : "border-transparent"
-                  }`}
+                      : "border-transparent",
+                  )}
                   style={{ backgroundColor: color }}
                 >
                   {isSelected && (
@@ -227,6 +247,7 @@ export default function CustomColorPicker({
           <button
             type="button"
             title="Custom color..."
+            onMouseDown={(e) => e.preventDefault()}
             onClick={handlePlusClick}
             className="border-border hover:bg-muted text-foreground flex size-6 items-center justify-center rounded-full border transition-colors focus:outline-none"
           >
@@ -239,6 +260,7 @@ export default function CustomColorPicker({
               key={color}
               type="button"
               title={color}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => handleSelect(color)}
               className="size-5 rounded-full border border-slate-300 transition-transform hover:scale-115 dark:border-slate-600"
               style={{ backgroundColor: color }}

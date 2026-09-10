@@ -48,7 +48,7 @@ const CustomToolbarButton = React.forwardRef<HTMLButtonElement, CustomToolbarBut
         aria-label={props["aria-label"] || title || tooltip}
         onMouseDown={handleMouseDown}
         className={cn(
-          "toolbar-item toolbar-button flex shrink-0 items-center justify-center rounded-lg border-none transition-colors focus:outline-none disabled:pointer-events-none disabled:opacity-40",
+          "toolbar-item toolbar-button flex shrink-0 items-center justify-center rounded-lg border-none transition-colors outline-none focus:ring-0! focus:outline-none focus-visible:ring-0! focus-visible:ring-offset-0! focus-visible:outline-none disabled:pointer-events-none disabled:opacity-40",
           sizeClasses,
           isActive
             ? "active bg-primary/15 text-primary dark:bg-primary/20 dark:text-accent font-semibold"

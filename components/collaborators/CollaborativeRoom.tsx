@@ -14,6 +14,7 @@ import { updateDocument } from "@/lib/actions/room.actions";
 import ShareModal from "@/components/modal/ShareModal";
 import ClerkSignedInUserButton from "@/components/shared/ClerkSignedInUserButton";
 import Notifications from "@/components/liveblocks/Notifications";
+import NotificationsErrorBoundary from "@/components/liveblocks/NotificationsErrorBoundary";
 import { ToggleTheme } from "@/components/shared/ToggleTheme";
 
 function ConnectionStatusBadge() {
@@ -188,7 +189,9 @@ const CollaborativeRoom = ({
                 creatorId={roomMetadata.creatorId}
                 currentUserType={currentUserType}
               />
-              <Notifications />
+              <NotificationsErrorBoundary>
+                <Notifications />
+              </NotificationsErrorBoundary>
               <ToggleTheme isEditor />
               <Show when="signed-out">
                 <SignInButton />

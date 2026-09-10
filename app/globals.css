@@ -191,7 +191,7 @@ ol:not([class*="editor-list"]) {
 }
 
 .toolbar button.toolbar-button {
-  @apply text-foreground hover:enabled:bg-surface-hover flex cursor-pointer items-center justify-center rounded-lg border-none bg-transparent p-1.5 transition-colors focus:outline-none;
+  @apply text-foreground hover:enabled:bg-surface-hover flex cursor-pointer items-center justify-center rounded-lg border-none bg-transparent p-1.5 transition-colors outline-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none;
 }
 
 .toolbar button.toolbar-item.active {
@@ -223,4 +223,15 @@ ol:not([class*="editor-list"]) {
 
 .toolbar-item.font-family .text {
   max-width: 40px;
+}
+
+/* Suppress default browser outline / ring across all toolbar buttons and dropdown items */
+.toolbar button:focus,
+.toolbar button:focus-visible,
+[data-radix-popper-content-wrapper] button:focus,
+[data-radix-popper-content-wrapper] button:focus-visible,
+[data-radix-dropdown-menu-content] button:focus,
+[data-radix-dropdown-menu-content] button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }

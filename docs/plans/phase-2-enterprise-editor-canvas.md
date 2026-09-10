@@ -496,9 +496,9 @@ Insert
 - [x] Build `MenuBar` component with `File`, `Edit`, `View`, `Insert`, `Format`, `Tools`, `Help` dropdown triggers in `components/editor/menubar/MenuBar.tsx`
 - [x] Build `InsertMenu` and `InsertDropdown` toolbar components with grouped sections and keyboard-accessible menu items
 - [x] Build interactive `TableGridPicker` component with an $8\times 8$ dimension matrix and live label
-- [ ] Implement `TableCellActionMenuPlugin` for inserting/deleting rows, columns, and tables
-- [ ] Implement `TableCellResizerPlugin` for drag-to-resize column widths and row heights
-- [ ] Implement Table Contextual Toolbar (Fill Color, Border Color, Border Width) in the on-click `⋮` More Options overflow strip
+- [x] Implement `TableCellActionMenuPlugin` for inserting/deleting rows, columns, and tables
+- [x] Implement `TableCellResizerPlugin` for drag-to-resize column widths and row heights
+- [x] Implement Table Contextual Toolbar (Fill Color, Border Color, Border Width, Vertical Alignment, Quick Actions) in the toolbar and responsive overflow strip
 - [x] Maintain `TableEscapePlugin` for automatic paragraph buffers and Tab/Arrow navigation
 - [ ] Implement `ImageNode` (Decorator): upload dialog to file or URL; resize handle overlay on selection
 - [x] Wire `HorizontalRuleNode` from `@lexical/react` as an insert action
