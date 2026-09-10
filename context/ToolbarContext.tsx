@@ -61,6 +61,11 @@ const INITIAL_TOOLBAR_STATE = {
   isCapitalize: false,
   checklistStyle: "standard" as "standard" | "strikethrough",
   rootType: "root" as keyof typeof rootTypeToRootName,
+  isTable: false,
+  tableCellBgColor: "",
+  tableBorderColor: "#000000",
+  tableBorderWidth: "1px",
+  tableCellVerticalAlign: "top" as "top" | "middle" | "bottom",
 };
 
 export type ToolbarState = typeof INITIAL_TOOLBAR_STATE;
@@ -82,10 +87,15 @@ export const ToolbarContext = ({ children }: { children: ReactNode }): React.JSX
 
   const updateToolbarState = useCallback(
     <Key extends ToolbarStateKey>(key: Key, value: ToolbarStateValue<Key>) => {
-      setToolbarState((prev) => ({
-        ...prev,
-        [key]: value,
-      }));
+      setToolbarState((prev) => {
+        if (prev[key] === value) {
+          return prev;
+        }
+        return {
+          ...prev,
+          [key]: value,
+        };
+      });
     },
     [],
   );

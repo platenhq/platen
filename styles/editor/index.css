@@ -350,16 +350,18 @@ pre::-webkit-scrollbar-thumb {
 }
 
 /* --------------  TABLES ---------------*/
+/* 
+  table-layout:fixed only works with an explicit width. We need width:100% so
+  the colWidths set by TableCellResizerPlugin map 1:1 to rendered pixels.
+  Removing this causes the browser to use auto layout and column resizing
+  will undershoot (visually 30-40% of the actual drag distance). 
+*/
 .editor-table {
   border-collapse: collapse;
   border-spacing: 0;
   width: 100%;
   table-layout: fixed;
   margin: 16px 0;
-  /* table-layout:fixed only works with an explicit width. We need width:100% so
-     the colWidths set by TableCellResizerPlugin map 1:1 to rendered pixels.
-     Removing this causes the browser to use auto layout and column resizing
-     will undershoot (visually 30-40% of the actual drag distance). */
 }
 
 .editor-tableCell {
@@ -371,7 +373,6 @@ pre::-webkit-scrollbar-thumb {
   text-align: start;
   padding: 6px 8px;
   position: relative;
-  outline: none;
   word-break: break-word;
   overflow-wrap: break-word;
 }
