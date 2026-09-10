@@ -23,7 +23,6 @@ import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
-import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { TablePlugin } from "@lexical/react/LexicalTablePlugin";
 import {
@@ -126,14 +125,13 @@ export function Editor({ roomId, currentUserType }: Editorprops) {
                     </div>
                   }
                   placeholder={
-                    <div className="editor-placeholder text-muted pointer-events-none absolute top-24 left-24 inline-block text-sm select-none max-md:top-6 max-md:left-4">
+                    <div className="editor-placeholder text-muted pointer-events-none absolute top-0 left-0 inline-block text-sm select-none">
                       Enter some rich text...
                     </div>
                   }
                   ErrorBoundary={LexicalErrorBoundary}
                 />
                 {currentUserType === "editor" && <FloatingToolbarPlugin />}
-                <HistoryPlugin />
                 <AutoFocusPlugin />
                 <EditorSanitizerPlugin />
                 <ListPlugin />
