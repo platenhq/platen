@@ -80,7 +80,7 @@ export default function FormatDropdown({
           <button
             type="button"
             onClick={() => applyTextFormat("strikethrough")}
-            className="hover:bg-surface-hover text-foreground flex items-center justify-between rounded-md px-3 py-1.5 text-xs transition-colors"
+            className="hover:bg-surface-hover text-foreground flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-xs transition-colors outline-none select-none focus:outline-none"
           >
             <span className="flex items-center gap-2">
               <Strikethrough className="format icon size-3.5" />
@@ -95,7 +95,7 @@ export default function FormatDropdown({
           <button
             type="button"
             onClick={() => applyTextFormat("superscript")}
-            className="hover:bg-surface-hover text-foreground flex items-center justify-between rounded-md px-3 py-1.5 text-xs transition-colors"
+            className="hover:bg-surface-hover text-foreground flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-xs transition-colors outline-none select-none focus:outline-none"
           >
             <span className="flex items-center gap-2">
               <Superscript className="format icon size-3.5" />
@@ -110,7 +110,7 @@ export default function FormatDropdown({
           <button
             type="button"
             onClick={() => applyTextFormat("subscript")}
-            className="hover:bg-surface-hover text-foreground flex items-center justify-between rounded-md px-3 py-1.5 text-xs transition-colors"
+            className="hover:bg-surface-hover text-foreground flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-xs transition-colors outline-none select-none focus:outline-none"
           >
             <span className="flex items-center gap-2">
               <Subscript className="format icon size-3.5" />
@@ -125,7 +125,7 @@ export default function FormatDropdown({
           <button
             type="button"
             onClick={() => applyTextFormat("code")}
-            className="hover:bg-surface-hover text-foreground flex items-center justify-between rounded-md px-3 py-1.5 text-xs transition-colors"
+            className="hover:bg-surface-hover text-foreground flex cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-xs transition-colors outline-none select-none focus:outline-none"
           >
             <span className="flex items-center gap-2">
               <Code className="format icon size-3.5" />
@@ -141,7 +141,7 @@ export default function FormatDropdown({
             <button
               type="button"
               onClick={() => setShowCaseSubmenu((prev) => !prev)}
-              className="hover:bg-surface-hover text-foreground flex w-full items-center justify-between rounded-md px-3 py-1.5 text-xs transition-colors"
+              className="hover:bg-surface-hover text-foreground flex w-full cursor-pointer items-center justify-between rounded-md px-3 py-1.5 text-xs transition-colors outline-none select-none focus:outline-none"
             >
               <span className="flex items-center gap-2">
                 <CaseSensitive className="format icon size-3.5" />
@@ -151,26 +151,26 @@ export default function FormatDropdown({
             </button>
 
             {showCaseSubmenu && (
-              <div className="border-border bg-surface text-foreground absolute top-0 left-full z-70 ml-1 w-36 rounded-lg border p-1 shadow-xl">
+              <div className="border-border bg-surface text-foreground absolute top-0 left-full z-70 ml-1 w-36 rounded-lg border p-1 shadow-xl outline-none select-none">
                 <div className="flex flex-col gap-0.5">
                   <button
                     type="button"
                     onClick={() => applyCaseTransform("lower")}
-                    className="hover:bg-surface-hover text-foreground flex items-center rounded-md px-2.5 py-1 text-left text-xs transition-colors"
+                    className="hover:bg-surface-hover text-foreground flex cursor-pointer items-center rounded-md px-2.5 py-1 text-left text-xs transition-colors outline-none select-none focus:outline-none"
                   >
                     lowercase
                   </button>
                   <button
                     type="button"
                     onClick={() => applyCaseTransform("upper")}
-                    className="hover:bg-surface-hover text-foreground flex items-center rounded-md px-2.5 py-1 text-left text-xs transition-colors"
+                    className="hover:bg-surface-hover text-foreground flex cursor-pointer items-center rounded-md px-2.5 py-1 text-left text-xs transition-colors outline-none select-none focus:outline-none"
                   >
                     UPPERCASE
                   </button>
                   <button
                     type="button"
                     onClick={() => applyCaseTransform("title")}
-                    className="hover:bg-surface-hover text-foreground flex items-center rounded-md px-2.5 py-1 text-left text-xs transition-colors"
+                    className="hover:bg-surface-hover text-foreground flex cursor-pointer items-center rounded-md px-2.5 py-1 text-left text-xs transition-colors outline-none select-none focus:outline-none"
                   >
                     Title Case
                   </button>
