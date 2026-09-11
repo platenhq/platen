@@ -502,10 +502,10 @@ Insert
 - [x] Maintain `TableEscapePlugin` for automatic paragraph buffers and Tab/Arrow navigation
 - [ ] Implement `ImageNode` (Decorator): upload dialog to file or URL; resize handle overlay on selection
 - [x] Wire `HorizontalRuleNode` from `@lexical/react` as an insert action
-- [ ] Implement `CalloutNode` (Decorator): styled block with icon (info / warning / tip) and editable text
+- [x] Implement `CalloutNode` (Decorator): styled block with icon (info / warning / tip) and editable text
 - [x] Implement `PageBreakNode` (Decorator): renders as a visual dashed rule across the canvas
-- [ ] Implement `YouTubeNode` and `TweetNode` decorator embeds
-- [ ] All custom nodes must serialize to/from Lexical JSON correctly for Liveblocks persistence
+- [x] Implement `YouTubeNode` and `TweetNode` decorator embeds
+- [x] All custom nodes must serialize to/from Lexical JSON correctly for Liveblocks persistence
 
 ### Files to modify for Section 2.4
 
