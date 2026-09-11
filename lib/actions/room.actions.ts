@@ -69,6 +69,7 @@ export const getDocuments = async (email: string) => {
     return JSON.parse(JSON.stringify(rooms));
   } catch (error) {
     console.log(`Error getting document rooms: ${error}`);
+    return { data: [] };
   }
 };
 
