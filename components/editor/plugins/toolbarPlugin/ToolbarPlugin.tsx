@@ -9,6 +9,7 @@ import {
   $isRootOrShadowRoot,
   $getSelection,
   $isRangeSelection,
+  $isNodeSelection,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   FORMAT_TEXT_COMMAND,
@@ -77,6 +78,8 @@ import {
 } from "@/components/ui/custom/CustomPopover";
 import { TableGridPicker } from "./dropdowns/TableGridPicker";
 import TableContextualToolbar from "./dropdowns/TableContextualToolbar";
+import ImageContextualToolbar from "./dropdowns/ImageContextualToolbar";
+import { $isImageNode } from "@/components/editor/nodes/ImageNode";
 
 const LowPriority = 1;
 
@@ -129,7 +132,8 @@ export default function ToolbarPlugin({
   // Compute dynamic cutoff index based on available toolbar container width
   const cutoffIndex = useMemo<number>(() => {
     const tableOffset = toolbarState.isTable ? 170 : 0;
-    const effectiveWidth = containerWidth - tableOffset;
+    const imageOffset = toolbarState.isImage ? 170 : 0;
+    const effectiveWidth = containerWidth - tableOffset - imageOffset;
 
     if (effectiveWidth >= 1200) return 10; // All 10 groups fit, More Options hidden
     if (effectiveWidth >= 1110) return 9; // Group 9 overflows (Clear formatting, Page setup)
@@ -140,10 +144,35 @@ export default function ToolbarPlugin({
     if (effectiveWidth >= 590) return 4; // Group 4..9 overflow (Bold, Italic, Underline, Colors)
     if (effectiveWidth >= 480) return 3; // Group 3..9 overflow (Font Size)
     return 2; // Group 2..9 overflow (Font Family)
-  }, [containerWidth, toolbarState.isTable]);
+  }, [containerWidth, toolbarState.isTable, toolbarState.isImage]);
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
+
+    if ($isNodeSelection(selection)) {
+      const nodes = selection.getNodes();
+      const imageNode = nodes.find($isImageNode);
+      if (imageNode) {
+        updateToolbarState("isImage", true);
+        updateToolbarState("imageAlignment", imageNode.getAlignment());
+        updateToolbarState("imageObjectFit", imageNode.getObjectFit());
+        updateToolbarState("selectedImageNodeKey", imageNode.getKey());
+        updateToolbarState("isTable", false);
+        return;
+      }
+    } else if ($isRangeSelection(selection) && !selection.isCollapsed()) {
+      updateToolbarState("isImage", false);
+      updateToolbarState("selectedImageNodeKey", null);
+    } else if ($isTableSelection(selection)) {
+      updateToolbarState("isImage", false);
+      updateToolbarState("selectedImageNodeKey", null);
+    }
+
+    if (!selection) {
+      // Editor temporarily lost focus (e.g. user clicked toolbar or More Options dropdown)
+      // Retain existing context so table and image toolbars do not vanish!
+      return;
+    }
 
     if (!$isRangeSelection(selection) && !$isTableSelection(selection)) {
       updateToolbarState("isTable", false);
@@ -550,6 +579,10 @@ export default function ToolbarPlugin({
     </div>
   );
 
+  const renderTableContextualGroup = () => <TableContextualToolbar disabled={!isEditable} />;
+
+  const renderImageContextualGroup = () => <ImageContextualToolbar disabled={!isEditable} />;
+
   // Overflow elements inside the floating popup
   const renderOverflowContent = () => (
     <div className="flex items-center gap-0.5">
@@ -574,6 +607,18 @@ export default function ToolbarPlugin({
       {cutoffIndex <= 5 && (
         <>
           {renderGroup5()}
+          <Divider />
+        </>
+      )}
+      {toolbarState.isTable && cutoffIndex <= 5 && (
+        <>
+          {renderTableContextualGroup()}
+          <Divider />
+        </>
+      )}
+      {toolbarState.isImage && cutoffIndex <= 5 && (
+        <>
+          {renderImageContextualGroup()}
           <Divider />
         </>
       )}
@@ -681,9 +726,17 @@ export default function ToolbarPlugin({
       )}
 
       {/* Contextual Table Toolbar (Active when cursor/selection is in a table) */}
-      {toolbarState.isTable && (
+      {toolbarState.isTable && cutoffIndex > 5 && (
         <>
-          <TableContextualToolbar disabled={!isEditable} />
+          {renderTableContextualGroup()}
+          <Divider />
+        </>
+      )}
+
+      {/* Contextual Image Toolbar (Active when an image is selected) */}
+      {toolbarState.isImage && cutoffIndex > 5 && (
+        <>
+          {renderImageContextualGroup()}
           <Divider />
         </>
       )}
