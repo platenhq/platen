@@ -10,6 +10,10 @@ import { HorizontalRuleNode } from "@lexical/react/LexicalHorizontalRuleNode";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { PageBreakNode } from "./PageBreakNode";
+import { CalloutNode } from "./CalloutNode";
+import { YouTubeNode } from "./YouTubeNode";
+import { TweetNode } from "./TweetNode";
+import { ImageNode } from "./ImageNode";
 import "./patchTableCellNode";
 
 const PlaygroundNodes: Array<Klass<LexicalNode>> = [
@@ -28,6 +32,10 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   OverflowNode,
   HorizontalRuleNode,
   PageBreakNode,
+  CalloutNode,
+  YouTubeNode,
+  TweetNode,
+  ImageNode,
   MarkNode,
 ];
 

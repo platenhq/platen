@@ -31,6 +31,9 @@ export default function MoreOptionsDropdown({
       <CustomPopoverContent
         align="end"
         sideOffset={8}
+        onMouseDown={(e) => {
+          e.preventDefault();
+        }}
         className="flex w-auto max-w-[95vw] items-center gap-0.5 overflow-x-auto p-1 px-3 shadow-lg lg:px-2"
       >
         {children}

@@ -1,4 +1,4 @@
-import { ElementFormatType } from "lexical";
+import { ElementFormatType, NodeKey } from "lexical";
 import React, {
   createContext,
   ReactNode,
@@ -66,6 +66,10 @@ const INITIAL_TOOLBAR_STATE = {
   tableBorderColor: "#000000",
   tableBorderWidth: "1px",
   tableCellVerticalAlign: "top" as "top" | "middle" | "bottom",
+  isImage: false,
+  imageAlignment: "center" as "left" | "center" | "right",
+  imageObjectFit: "fill" as "fill" | "contain" | "cover",
+  selectedImageNodeKey: null as NodeKey | null,
 };
 
 export type ToolbarState = typeof INITIAL_TOOLBAR_STATE;

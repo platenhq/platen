@@ -478,16 +478,16 @@ Insert
 
 ### Lexical Node Requirements
 
-| Insert Item     | Lexical Mechanism                     | Status   |
-| --------------- | ------------------------------------- | -------- |
-| Image           | Custom `ImageNode` (Decorator)        | To build |
-| Horizontal Rule | `HorizontalRuleNode` (@lexical/react) | Done     |
-| Table           | `@lexical/table`                      | Enhanced |
-| Callout Block   | Custom `CalloutNode` (Decorator)      | To build |
-| Page Break      | Custom `PageBreakNode` (Decorator)    | Done     |
-| YouTube Embed   | Custom `YouTubeNode` (Decorator)      | To build |
-| Tweet Embed     | Custom `TweetNode` (Decorator)        | To build |
-| Code Block      | `@lexical/code`                       | Exists   |
+| Insert Item     | Lexical Mechanism                     | Status |
+| --------------- | ------------------------------------- | ------ |
+| Image           | Custom `ImageNode` (Decorator)        | Done   |
+| Horizontal Rule | `HorizontalRuleNode` (@lexical/react) | Done   |
+| Table           | `@lexical/table`                      | Done   |
+| Callout Block   | Custom `CalloutNode` (Decorator)      | Done   |
+| Page Break      | Custom `PageBreakNode` (Decorator)    | Done   |
+| YouTube Embed   | Custom `YouTubeNode` (Decorator)      | Done   |
+| Tweet Embed     | Custom `TweetNode` (Decorator)        | Done   |
+| Code Block      | `@lexical/code`                       | Done   |
 
 ### Checklist for Section 2.4
 
@@ -500,12 +500,12 @@ Insert
 - [x] Implement `TableCellResizerPlugin` for drag-to-resize column widths and row heights
 - [x] Implement Table Contextual Toolbar (Fill Color, Border Color, Border Width, Vertical Alignment, Quick Actions) in the toolbar and responsive overflow strip
 - [x] Maintain `TableEscapePlugin` for automatic paragraph buffers and Tab/Arrow navigation
-- [ ] Implement `ImageNode` (Decorator): upload dialog to file or URL; resize handle overlay on selection
+- [x] Implement `ImageNode` (Decorator): upload dialog to file or URL; resize handle overlay on selection
 - [x] Wire `HorizontalRuleNode` from `@lexical/react` as an insert action
-- [ ] Implement `CalloutNode` (Decorator): styled block with icon (info / warning / tip) and editable text
+- [x] Implement `CalloutNode` (Decorator): styled block with icon (info / warning / tip) and editable text
 - [x] Implement `PageBreakNode` (Decorator): renders as a visual dashed rule across the canvas
-- [ ] Implement `YouTubeNode` and `TweetNode` decorator embeds
-- [ ] All custom nodes must serialize to/from Lexical JSON correctly for Liveblocks persistence
+- [x] Implement `YouTubeNode` and `TweetNode` decorator embeds
+- [x] All custom nodes must serialize to/from Lexical JSON correctly for Liveblocks persistence
 
 ### Files to modify for Section 2.4
 
