@@ -52,6 +52,7 @@ import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin
 import { PageBreakPlugin } from "./plugins/PageBreakPlugin";
 import CalloutPlugin from "./plugins/CalloutPlugin";
 import MediaEmbedPlugin from "./plugins/MediaEmbedPlugin";
+import ImagesPlugin from "./plugins/ImagesPlugin";
 import MenuBar from "./menubar/MenuBar";
 
 export function Editor({ roomId, currentUserType }: Editorprops) {
@@ -146,6 +147,7 @@ export function Editor({ roomId, currentUserType }: Editorprops) {
                 <PageBreakPlugin />
                 <CalloutPlugin />
                 <MediaEmbedPlugin />
+                <ImagesPlugin />
                 {floatingAnchorElem && !isSmallWidthViewport && (
                   <>
                     <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />

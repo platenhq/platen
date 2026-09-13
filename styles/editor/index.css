@@ -626,3 +626,10 @@ pre::-webkit-scrollbar-thumb {
 .dark .editor-callout-note {
   background-color: rgba(139, 92, 246, 0.12);
 }
+
+/* -------------- IMAGE BLOCKS --------------- */
+.editor-image-wrapper {
+  display: block;
+  line-height: 0;
+  user-select: none;
+}

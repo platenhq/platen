@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { INSERT_HORIZONTAL_RULE_COMMAND } from "@lexical/react/LexicalHorizontalRuleNode";
 import { $createCodeNode } from "@lexical/code";
@@ -10,7 +10,9 @@ import { INSERT_PAGE_BREAK_COMMAND } from "@/components/editor/nodes/PageBreakNo
 import { INSERT_CALLOUT_COMMAND, CalloutType } from "@/components/editor/nodes/CalloutNode";
 import { INSERT_YOUTUBE_COMMAND } from "@/components/editor/nodes/YouTubeNode";
 import { INSERT_TWEET_COMMAND } from "@/components/editor/nodes/TweetNode";
+import { INSERT_IMAGE_COMMAND, InsertImagePayload } from "@/components/editor/nodes/ImageNode";
 import MediaEmbedModal from "@/components/editor/modals/MediaEmbedModal";
+import InsertImageModal from "@/components/editor/modals/InsertImageModal";
 import {
   CustomDropdown,
   CustomDropdownTrigger,
@@ -35,6 +37,8 @@ import {
   StickyNote,
   Video,
   Twitter,
+  Upload,
+  Link as LinkIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -45,6 +49,8 @@ interface InsertMenuProps {
 export const InsertMenu: React.FC<InsertMenuProps> = ({ disabled }) => {
   const [editor] = useLexicalComposerContext();
   const [open, setOpen] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [embedModal, setEmbedModal] = useState<{
     isOpen: boolean;
     type: "youtube" | "tweet";
@@ -84,8 +90,63 @@ export const InsertMenu: React.FC<InsertMenuProps> = ({ disabled }) => {
     }
   };
 
+  const handleImageConfirm = (payload: InsertImagePayload) => {
+    editor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
+  };
+
+  const handleDirectFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (!file.type.startsWith("image/")) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        if (result) {
+          const img = new Image();
+          img.onload = () => {
+            let initialWidth: number | "inherit" = "inherit";
+            let initialHeight: number | "inherit" = "inherit";
+
+            // Large images (wider than 500px) use "inherit" so the wrapper's
+            // maxWidth: 100% fills the page exactly \u2014 same as Google Docs.
+            // Small images (icons, logos) render at their natural pixel size.
+            // The first resize drag will commit exact px dimensions to the AST.
+            if (img.naturalWidth <= 500) {
+              initialWidth = img.naturalWidth;
+              initialHeight = img.naturalHeight;
+            }
+            // else: both remain "inherit" \u2014 CSS handles the sizing
+
+            const cleanName = file.name.replace(/\.[^/.]+$/, "");
+            editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+              src: result,
+              altText: cleanName || "Uploaded image",
+              width: initialWidth,
+              height: initialHeight,
+              maxWidth: 800,
+              alignment: "center",
+            });
+          };
+          img.src = result;
+        }
+      };
+      reader.readAsDataURL(file);
+      // Reset input value so re-selecting same file works
+      e.target.value = "";
+    }
+  };
+
   return (
     <>
+      {/* Hidden file input for direct computer upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+        onChange={handleDirectFileInputChange}
+        className="hidden"
+      />
+
       <CustomDropdown open={open} onOpenChange={setOpen}>
         <CustomDropdownTrigger asChild>
           <Button
@@ -173,19 +234,41 @@ export const InsertMenu: React.FC<InsertMenuProps> = ({ disabled }) => {
 
           <CustomDropdownSeparator />
 
-          {/* Media / Image */}
-          <CustomDropdownItem
-            className="px-3 py-2 text-sm"
-            onClick={() => {
-              // Placeholder trigger for upcoming ImageNode modal in Batch 2
-              setOpen(false);
-            }}
-          >
-            <div className="flex items-center gap-3">
-              <ImageIcon className="size-4 text-emerald-500" />
-              <span>Image</span>
-            </div>
-          </CustomDropdownItem>
+          {/* Image Submenu */}
+          <CustomDropdownSub>
+            <CustomDropdownSubTrigger className="px-3 py-2 text-sm">
+              <div className="flex items-center gap-3">
+                <ImageIcon className="size-4 text-emerald-500" />
+                <span>Image</span>
+              </div>
+            </CustomDropdownSubTrigger>
+            <CustomDropdownSubContent className="w-56 p-1.5">
+              <CustomDropdownItem
+                className="px-3 py-2 text-sm"
+                onClick={() => {
+                  setOpen(false);
+                  fileInputRef.current?.click();
+                }}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Upload className="size-4 text-emerald-500" />
+                  <span>Upload from computer</span>
+                </div>
+              </CustomDropdownItem>
+              <CustomDropdownItem
+                className="px-3 py-2 text-sm"
+                onClick={() => {
+                  setOpen(false);
+                  setIsImageModalOpen(true);
+                }}
+              >
+                <div className="flex items-center gap-2.5">
+                  <LinkIcon className="size-4 text-blue-500" />
+                  <span>By URL</span>
+                </div>
+              </CustomDropdownItem>
+            </CustomDropdownSubContent>
+          </CustomDropdownSub>
 
           {/* YouTube Video */}
           <CustomDropdownItem
@@ -251,6 +334,13 @@ export const InsertMenu: React.FC<InsertMenuProps> = ({ disabled }) => {
         type={embedModal.type}
         onClose={() => setEmbedModal((prev) => ({ ...prev, isOpen: false }))}
         onEmbed={handleEmbedConfirm}
+      />
+
+      {/* Insert Image Modal */}
+      <InsertImageModal
+        isOpen={isImageModalOpen}
+        onClose={() => setIsImageModalOpen(false)}
+        onConfirm={handleImageConfirm}
       />
     </>
   );
