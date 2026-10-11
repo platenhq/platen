@@ -36,6 +36,15 @@
   --muted-foreground: #94a3b8;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
+
+  /* Document Page Layout (US Letter 8.5in x 11in at 96 DPI) */
+  --page-width: 816px;
+  --page-height: 1056px;
+  --page-padding-x: 96px;
+  --page-padding-y: 96px;
+  --ruler-unit: 96px;
+  --page-bg: #ffffff;
+  --page-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
 }
 
 .dark {
@@ -64,6 +73,10 @@
   --muted-foreground: #64748b;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
+
+  /* Document Page Layout Dark */
+  --page-bg: #0f172a;
+  --page-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.3);
 }
 
 @theme {
@@ -155,12 +168,12 @@ body {
   @apply bg-transparent;
 }
 
-ul {
+ul:not([class*="editor-list"]) {
   list-style: disc;
   list-style-type: disc;
 }
 
-ol {
+ol:not([class*="editor-list"]) {
   list-style: decimal;
   list-style-type: decimal;
 }
@@ -178,7 +191,7 @@ ol {
 }
 
 .toolbar button.toolbar-button {
-  @apply text-foreground hover:enabled:bg-surface-hover flex cursor-pointer items-center justify-center rounded-lg border-none bg-transparent p-1.5 transition-colors focus:outline-none;
+  @apply text-foreground hover:enabled:bg-surface-hover flex cursor-pointer items-center justify-center rounded-lg border-none bg-transparent p-1.5 transition-colors outline-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none;
 }
 
 .toolbar button.toolbar-item.active {
@@ -210,4 +223,15 @@ ol {
 
 .toolbar-item.font-family .text {
   max-width: 40px;
+}
+
+/* Suppress default browser outline / ring across all toolbar buttons and dropdown items */
+.toolbar button:focus,
+.toolbar button:focus-visible,
+[data-radix-popper-content-wrapper] button:focus,
+[data-radix-popper-content-wrapper] button:focus-visible,
+[data-radix-dropdown-menu-content] button:focus,
+[data-radix-dropdown-menu-content] button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }

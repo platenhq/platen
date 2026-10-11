@@ -7,10 +7,13 @@ import CodeHighlightPlugin from "./plugins/codeHighlightPlugin";
 const CodeActionMenuPlugin = dynamic(() => import("./plugins/codeActionMenuPlugin"), {
   ssr: false,
 });
-const DraggableBlockPlugin = dynamic(() => import("./plugins/draggableBlockPlugin"), {
+const FloatingLinkEditorPlugin = dynamic(() => import("./plugins/floatingLinkEditorPlugin"), {
   ssr: false,
 });
-const FloatingLinkEditorPlugin = dynamic(() => import("./plugins/floatingLinkEditorPlugin"), {
+const TableCellActionMenuPlugin = dynamic(() => import("./plugins/TableCellActionMenuPlugin"), {
+  ssr: false,
+});
+const TableCellResizerPlugin = dynamic(() => import("./plugins/TableCellResizerPlugin"), {
   ssr: false,
 });
 
@@ -20,7 +23,6 @@ import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
-import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { TablePlugin } from "@lexical/react/LexicalTablePlugin";
 import {
@@ -31,28 +33,42 @@ import {
   useIsEditorReady,
 } from "@liveblocks/react-lexical";
 
-import Loader from "@/components/ui/common/Loader";
+import Loader from "@/components/shared/Loader";
 import FloatingToolbarPlugin from "./plugins/FloatingToolbarPlugin";
 import { useThreads } from "@liveblocks/react/suspense";
-import Comments from "@/components/ui/liveblocks/Comments";
-import { useEffect, useState } from "react";
+import Comments from "@/components/liveblocks/Comments";
+import { useEffect, useMemo, useState } from "react";
 import { ToolbarContext } from "@/context/ToolbarContext";
+import { DocumentLayoutProvider } from "@/context/DocumentLayoutContext";
 import PlaygroundNodes from "./nodes/playgroundNodes";
 import { CAN_USE_DOM } from "@lexical/utils";
 import LinkPlugin from "./plugins/linkPlugin";
 import { useSettings } from "@/context/SettingsContext";
 
+import EditorShell from "./EditorShell";
+import TableEscapePlugin from "./plugins/TableEscapePlugin";
+import EditorSanitizerPlugin from "./plugins/EditorSanitizerPlugin";
+import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
+import { PageBreakPlugin } from "./plugins/PageBreakPlugin";
+import CalloutPlugin from "./plugins/CalloutPlugin";
+import MediaEmbedPlugin from "./plugins/MediaEmbedPlugin";
+import ImagesPlugin from "./plugins/ImagesPlugin";
+import MenuBar from "./menubar/MenuBar";
+
 export function Editor({ roomId, currentUserType }: Editorprops) {
-  const initialConfig = liveblocksConfig({
-    namespace: "MyEditor",
-    nodes: [...PlaygroundNodes],
-    theme: editorTheme,
-    onError: (error: Error) => {
-      console.error(error);
-      throw error;
-    },
-    editable: currentUserType === "editor",
-  });
+  const initialConfig = useMemo(
+    () =>
+      liveblocksConfig({
+        namespace: "MyEditor",
+        nodes: [...PlaygroundNodes],
+        theme: editorTheme,
+        onError: (error: Error) => {
+          console.error("[Lexical Error]:", error);
+        },
+        editable: currentUserType === "editor",
+      }),
+    [currentUserType],
+  );
 
   const {
     settings: { hasLinkAttributes },
@@ -90,36 +106,48 @@ export function Editor({ roomId, currentUserType }: Editorprops) {
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <ToolbarContext>
-        <div className="bg-surface-canvas text-foreground flex size-full flex-col overflow-hidden text-left leading-5">
-          <div className="toolbar-wrapper flex min-h-11 min-w-full items-center justify-between gap-4">
-            <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
-          </div>
+      <DocumentLayoutProvider>
+        <ToolbarContext>
+          <div className="bg-surface-canvas text-foreground flex size-full flex-1 flex-col overflow-hidden text-left leading-5">
+            <MenuBar />
+            <div className="toolbar-wrapper border-border z-20 flex min-h-11 min-w-full items-center justify-between gap-4 border-b">
+              <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
+            </div>
 
-          <div className="editor-wrapper flex flex-1 flex-col items-center justify-start gap-6 overflow-y-auto p-4 pb-12 sm:p-8 lg:flex-row lg:items-start lg:justify-center">
-            {ready ? (
-              <div className="border-border/80 bg-surface relative mb-8 min-h-225 w-full max-w-4xl rounded-xl border p-6 shadow-xl transition-colors sm:p-12">
+            <EditorShell>
+              <div className="relative min-h-full">
+                {!ready && (
+                  <div className="bg-surface/80 absolute inset-0 z-30 flex items-center justify-center backdrop-blur-xs">
+                    <Loader />
+                  </div>
+                )}
                 <RichTextPlugin
                   contentEditable={
-                    <div className="editor h-full" ref={onRef}>
-                      <ContentEditable className="editor-input text-foreground relative h-full caret-current outline-none" />
+                    <div className="editor relative min-h-full" ref={onRef}>
+                      <ContentEditable className="editor-input text-foreground relative min-h-175 caret-current outline-none" />
                     </div>
                   }
-
                   placeholder={
-                    <div className="editor-placeholder text-muted pointer-events-none absolute top-6 left-6 inline-block text-sm sm:top-12 sm:left-12">
+                    <div className="editor-placeholder text-muted pointer-events-none absolute top-0 left-0 inline-block text-sm select-none">
                       Enter some rich text...
                     </div>
                   }
                   ErrorBoundary={LexicalErrorBoundary}
                 />
                 {currentUserType === "editor" && <FloatingToolbarPlugin />}
-                <HistoryPlugin />
                 <AutoFocusPlugin />
+                <EditorSanitizerPlugin />
                 <ListPlugin />
                 <CheckListPlugin />
                 <CodeHighlightPlugin />
                 <TablePlugin />
+                <TableEscapePlugin />
+                <TableCellResizerPlugin />
+                <HorizontalRulePlugin />
+                <PageBreakPlugin />
+                <CalloutPlugin />
+                <MediaEmbedPlugin />
+                <ImagesPlugin />
                 {floatingAnchorElem && !isSmallWidthViewport && (
                   <>
                     <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
@@ -128,27 +156,25 @@ export function Editor({ roomId, currentUserType }: Editorprops) {
                       isLinkEditMode={isLinkEditMode}
                       setIsLinkEditMode={setIsLinkEditMode}
                     />
-                    <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
+                    <TableCellActionMenuPlugin anchorElem={floatingAnchorElem} />
                   </>
                 )}
                 <LinkPlugin hasLinkAttributes={hasLinkAttributes} />
               </div>
-            ) : (
-              <Loader />
-            )}
 
-            {/* liveblocks plugin */}
-            <LiveblocksPlugin>
-              <FloatingComposer className="border-border bg-surface w-87.5 overflow-hidden rounded-xl border shadow-2xl" />
-              <FloatingThreads
-                threads={threads}
-                className="border-border bg-surface rounded-xl border shadow-2xl"
-              />
-              <Comments />
-            </LiveblocksPlugin>
+              {/* liveblocks plugin */}
+              <LiveblocksPlugin>
+                <FloatingComposer className="border-border bg-surface w-87.5 overflow-hidden rounded-xl border shadow-2xl" />
+                <FloatingThreads
+                  threads={threads}
+                  className="border-border bg-surface rounded-xl border shadow-2xl"
+                />
+                <Comments />
+              </LiveblocksPlugin>
+            </EditorShell>
           </div>
-        </div>
-      </ToolbarContext>
+        </ToolbarContext>
+      </DocumentLayoutProvider>
     </LexicalComposer>
   );
 }

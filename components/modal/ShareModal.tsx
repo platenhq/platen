@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Check, Copy, Share2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import UserTypeSelector from "@/components/ui/common/UserTypeSelector";
+import UserTypeSelector from "@/components/shared/UserTypeSelector";
 import Collaborator from "@/components/collaborators/Collaborator";
 import { updateDocumentAccess } from "@/lib/actions/room.actions";
 

@@ -7,8 +7,8 @@ import Provider from "./Provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
 export const metadata: Metadata = {
-  title: "Docs Editor",
-  description: "A live collaborative docs editor",
+  title: "Platen",
+  description: "Enterprise-grade collaborative document editor",
 };
 
 export default function RootLayout({

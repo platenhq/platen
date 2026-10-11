@@ -1,5 +1,5 @@
-import DocumentClient from "@/components/ui/common/DocumentClient";
-import Loader from "@/components/ui/common/Loader";
+import DocumentClient from "@/components/shared/DocumentClient";
+import Loader from "@/components/shared/Loader";
 import { getDocument } from "@/lib/actions/room.actions";
 import { getClerkUsers } from "@/lib/actions/user.actions";
 import { currentUser } from "@clerk/nextjs/server";

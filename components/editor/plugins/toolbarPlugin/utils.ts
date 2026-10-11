@@ -350,3 +350,24 @@ export function getSelectedNode(selection: RangeSelection): TextNode | ElementNo
     return $isAtNodeEnd(anchor) ? anchorNode : focusNode;
   }
 }
+
+export function getStyleProperty(style: string, property: string): string | null {
+  if (!style) return null;
+  const regex = new RegExp(`(?:^|;)\\s*${property}:\\s*([^;]+)`);
+  const match = style.match(regex);
+  return match ? match[1].trim() : null;
+}
+
+export function setStyleProperty(style: string, property: string, value: string | null): string {
+  const parts = (style || "")
+    .split(";")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .filter((s) => !s.startsWith(`${property}:`));
+
+  if (value !== null && value !== undefined && value !== "") {
+    parts.push(`${property}: ${value}`);
+  }
+
+  return parts.length > 0 ? parts.join("; ") + ";" : "";
+}

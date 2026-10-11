@@ -10,19 +10,34 @@
 
 ## 3.1 Application Database & Multi-Tenant Schema (Postgres)
 
-Liveblocks handles real-time delta streaming and collaborative CRDT state. Postgres stores application metadata, document ownership, user preferences, and permissions.
+**Core Architectural Shift:** Postgres is the permanent, authoritative single source of truth for all document content and metadata. Liveblocks is strictly a transient multiplayer transport bus (WebSockets, carets, live keystroke merging, comments).
+
+Documents can never be wiped out by third-party cloud outages, client connection race conditions, or unhandled 503 errors.
 
 ### Architecture Overview
 
 ```txt
-┌────────────────────────────┐       ┌────────────────────────────┐
-│      Postgres Database     │       │    Liveblocks WebSocket    │
-│ (Users, Docs, Permissions) │       │ (Document Canvas & Cursors)│
-└─────────────┬──────────────┘       └─────────────┬──────────────┘
-              │                                    │
-              ▼                                    ▼
-       Next.js 15 Server                   Lexical Rich Text
-       Actions & API Layer                 Collaborative Canvas
+┌─────────────────────────────────────────────────────────────┐
+│                       OUR POSTGRES DB                       │
+│              (Permanent Source of Truth)                    │
+│   • documents (content_json, content_text, title, owner)    │
+│   • document_versions (full point-in-time rollback history) │
+└──────────────┬───────────────────────────────▲──────────────┘
+               │                               │
+       1. Hydrate on load              3. Debounced Autosave
+               │                        (with Anti-Wipe Guard)
+               ▼                               │
+┌──────────────────────────────┐               │
+│     NEXT.JS SERVER / RSC     │───────────────┘
+│   (Loads doc even if offline)│
+└──────────────┬───────────────┘
+               │
+       2. Real-time edits only
+               ▼
+┌──────────────────────────────┐
+│     LIVEBLOCKS WEBSOCKET     │  <-- Only handles live typing,
+│   (Multiplayer Sync & Carets)│      cursors, & comments while open!
+└──────────────────────────────┘
 ```
 
 ### Database Schema (Drizzle ORM / Prisma)
@@ -38,7 +53,7 @@ CREATE TABLE users (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Documents Metadata
+-- Documents with Authoritative Content Persistence
 CREATE TABLE documents (
   id TEXT PRIMARY KEY,
   liveblocks_room_id TEXT UNIQUE NOT NULL,
@@ -46,9 +61,27 @@ CREATE TABLE documents (
   owner_id TEXT REFERENCES users(id) ON DELETE CASCADE,
   folder_id TEXT REFERENCES folders(id) ON DELETE SET NULL,
   general_access TEXT NOT NULL DEFAULT 'restricted', -- 'restricted' | 'public_view' | 'public_edit'
+
+  -- Content Persistence Layer (Immune to external cloud wipeouts)
+  content_json JSONB,                -- Canonical Lexical AST (serialized JSON snapshot)
+  content_text TEXT,                 -- Plain text extraction for indexed full-text search
+  content_html TEXT,                 -- Static HTML cache for fast preview and exports
+  last_saved_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   deleted_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Independent Version History & Disaster Recovery Snapshots
+CREATE TABLE document_versions (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+  document_id TEXT REFERENCES documents(id) ON DELETE CASCADE,
+  version_name TEXT,                 -- e.g. "Draft", "Approved Copy", or NULL for periodic autosaves
+  content_json JSONB NOT NULL,       -- Complete snapshot of document AST at this revision
+  author_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+  author_name TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Document Permissions
@@ -79,12 +112,35 @@ CREATE TABLE starred_documents (
 );
 ```
 
+### 3.1.B Document Persistence Pipeline & Anti-Wipeout Engine
+
+1. **Hydration on Document Open (`/documents/[id]`):**
+   - Next.js Server Component queries `documents` directly from Postgres.
+   - If the Liveblocks room is newly initialized or empty, the server seeds the room with `content_json` from Postgres.
+   - Even if Liveblocks is unreachable (503), the document renders on screen from Postgres in read/offline mode.
+
+2. **Debounced Client Autosave with Anti-Wipeout Guard:**
+   - On every keystroke/mutation, Lexical debounces an autosave (3 seconds idle) calling a Server Action (`saveDocumentContent`).
+   - **Anti-Wipeout Validation:**
+
+     ```ts
+     // Reject suspected wipeouts
+     if (isAstEmpty(newContentJson) && existingDoc.hasContent) {
+       throw new Error("Suspected empty-state wipeout rejected by persistence guard.");
+     }
+     ```
+
+3. **Liveblocks Webhook Sync:**
+   - An API route `/api/webhooks/liveblocks` captures `storage:updated` and user disconnect events, automatically synchronizing final room states to Postgres.
+
 ### Checklist for database schema
 
 - [ ] Set up Drizzle ORM (or Prisma) with Postgres connection pooling
-- [ ] Define database schema tables: `users`, `documents`, `document_permissions`, `folders`, `starred_documents`
+- [ ] Define database schema tables: `users`, `documents`, `document_versions`, `document_permissions`, `folders`, `starred_documents`
+- [ ] Implement `saveDocumentContent` server action with Anti-Wipeout validation
+- [ ] Implement document hydration pipeline: seed Liveblocks rooms from Postgres `content_json`
 - [ ] Create database migration scripts and seed utilities
-- [ ] Sync document creation and deletion lifecycle between Postgres and Liveblocks rooms
+- [ ] Connect Liveblocks session-end webhooks to Postgres auto-flushing
 
 ### Files to create/modify for database schema
 
@@ -93,6 +149,7 @@ drizzle.config.ts (or prisma/schema.prisma)
 lib/db/index.ts
 lib/db/schema.ts
 lib/actions/document.actions.ts
+app/api/webhooks/liveblocks/route.ts
 .env.example
 ```
 

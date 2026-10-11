@@ -1,8 +1,11 @@
-# Docs Editor
+# Platen
 
-[![CI](https://github.com/Trayshmhirk/docs-editor/actions/workflows/ci.yml/badge.svg)](https://github.com/Trayshmhirk/docs-editor/actions/workflows/ci.yml)
+[![CI](https://github.com/platenhq/platen/actions/workflows/ci.yml/badge.svg)](https://github.com/platenhq/platen/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 A modern, real-time collaborative rich-text document editor built with Next.js, Lexical, Liveblocks, and Clerk.
+
+**Live Demo:** [platenhq.vercel.app](https://platenhq.vercel.app/)
 
 ---
 
@@ -30,8 +33,8 @@ A modern, real-time collaborative rich-text document editor built with Next.js, 
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/Trayshmhirk/docs-editor.git
-   cd docs-editor
+   git clone https://github.com/platenhq/platen.git
+   cd platen
    ```
 
 2. **Install dependencies:**
@@ -81,3 +84,9 @@ A modern, real-time collaborative rich-text document editor built with Next.js, 
 - **Roadmap:** Review our multi-phase roadmap in [`docs/plans/README.md`](./docs/plans/README.md).
 - **Contributing Guidelines:** Read commit conventions and workflow rules in [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md).
 - **Agent Instructions:** Guidelines for AI agents working in this repository are in [`AGENTS.md`](./AGENTS.md).
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.

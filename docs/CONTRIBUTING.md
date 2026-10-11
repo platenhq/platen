@@ -1,12 +1,12 @@
-# Contributing to docs-editor
+# Contributing to Platen
 
 Thank you for contributing. This guide covers setup, workflow, commit conventions, and pull requests.
 
 ## Setup
 
 ```bash
-git clone https://github.com/Trayshmhirk/docs-editor.git
-cd docs-editor
+git clone https://github.com/platenhq/platen.git
+cd platen
 npm install
 cp .env.example .env.local   # fill in values (when .env.example exists)
 npm run dev

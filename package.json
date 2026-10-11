@@ -1,7 +1,18 @@
 {
-  "name": "docs-editor",
+  "name": "platen",
   "version": "0.1.3",
   "private": true,
+  "description": "Enterprise-grade collaborative document editor",
+  "author": "Platen Authors (Trayshmhirk)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/platenhq/platen.git"
+  },
+  "homepage": "https://github.com/platenhq/platen#readme",
+  "bugs": {
+    "url": "https://github.com/platenhq/platen/issues"
+  },
   "engines": {
     "node": ">=24.0.0"
   },
@@ -13,7 +24,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "security:audit": "npm audit --audit-level=high",
+    "security:audit": "npm audit --omit=dev --audit-level=high",
     "security:audit:fix": "npm audit fix",
     "security:outdated": "npm outdated",
     "reset": "npx -y rimraf .next node_modules package-lock.json && npm install",
@@ -55,7 +66,7 @@
     "lucide": "^0.460.0",
     "lucide-react": "^0.460.0",
     "nanoid": "^5.1.2",
-    "next": "15.5.23",
+    "next": "15.5.27",
     "next-themes": "^0.4.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -72,7 +83,7 @@
     "@types/react-dom": "^19.0.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^8",
-    "eslint-config-next": "15.5.23",
+    "eslint-config-next": "15.5.27",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
@@ -87,8 +98,11 @@
     "@lexical/utils": "^0.35.0",
     "@lexical/yjs": "^0.35.0",
     "lexical": "^0.35.0",
-    "brace-expansion": "^1.1.18",
+    "brace-expansion": "^1.1.21",
+    "fast-uri": "^3.1.8",
     "postcss": "^8.5.3",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.5",
+    "source-map-js": "^1.2.2",
+    "js-yaml": "^4.3.2"
   }
 }

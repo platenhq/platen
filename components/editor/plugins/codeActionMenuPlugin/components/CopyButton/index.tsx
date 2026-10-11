@@ -10,7 +10,7 @@ import { $getNearestNodeFromDOMNode, $getSelection, $setSelection, LexicalEditor
 import * as React from "react";
 import { useState } from "react";
 
-import { useDebounce } from "../../utils";
+import { useDebounce } from "@/components/editor/plugins/codeActionMenuPlugin/utils";
 import { Check, Copy } from "lucide-react";
 
 interface Props {

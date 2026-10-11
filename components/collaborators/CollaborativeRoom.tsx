@@ -3,18 +3,19 @@
 import { RoomProvider, useStatus } from "@liveblocks/react";
 import { ClientSideSuspense } from "@liveblocks/react/suspense";
 import { Editor } from "@/components/editor/Editor";
-import Header from "@/components/ui/shared/Header";
+import Header from "@/components/shared/Header";
 import { Show, SignInButton } from "@clerk/nextjs";
 import ActiveCollaborators from "@/components/collaborators/ActiveCollaborators";
-import Loader from "@/components/ui/common/Loader";
+import Loader from "@/components/shared/Loader";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { SquarePen, ChevronRight, Eye } from "lucide-react";
 import { updateDocument } from "@/lib/actions/room.actions";
 import ShareModal from "@/components/modal/ShareModal";
-import ClerkSignedInUserButton from "../ui/common/ClerkSignedInUserButton";
-import Notifications from "@/components/ui/liveblocks/Notifications";
-import { ToggleTheme } from "@/components/ui/common/ToggleTheme";
+import ClerkSignedInUserButton from "@/components/shared/ClerkSignedInUserButton";
+import Notifications from "@/components/liveblocks/Notifications";
+import NotificationsErrorBoundary from "@/components/liveblocks/NotificationsErrorBoundary";
+import { ToggleTheme } from "@/components/shared/ToggleTheme";
 
 function ConnectionStatusBadge() {
   const status = useStatus();
@@ -188,7 +189,9 @@ const CollaborativeRoom = ({
                 creatorId={roomMetadata.creatorId}
                 currentUserType={currentUserType}
               />
-              <Notifications />
+              <NotificationsErrorBoundary>
+                <Notifications />
+              </NotificationsErrorBoundary>
               <ToggleTheme isEditor />
               <Show when="signed-out">
                 <SignInButton />

@@ -21,7 +21,7 @@ import { Dispatch, useCallback, useEffect, useRef, useState } from "react";
 import * as React from "react";
 import { createPortal } from "react-dom";
 
-import { getSelectedNode } from "../toolbarPlugin/utils";
+import { getSelectedNode } from "@/components/editor/plugins/toolbarPlugin/utils";
 import { setFloatingElemPositionForLinkEditor } from "@/lib/utils";
 import { sanitizeUrl } from "@/lib/utils";
 import { CircleCheck, CircleX, PenBox, Trash2 } from "lucide-react";
@@ -273,7 +273,7 @@ function FloatingLinkEditor({
                 setIsLinkEditMode(true);
               }}
             >
-              <PenBox className="mt-[2px] size-5 stroke-[#1e1e1e] dark:stroke-white" />
+              <PenBox className="mt-2px size-5 stroke-[#1e1e1e] dark:stroke-white" />
             </div>
             <div
               className="link-trash"

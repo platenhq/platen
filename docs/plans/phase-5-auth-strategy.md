@@ -212,6 +212,32 @@ await liveblocks.identifyUser({ userId: user.info.email, groupIds: [] }, { userI
 
 ---
 
+## 5.9 Architectural Topology: Monorepo vs Integrated Next.js Fullstack
+
+When building a full custom auth system and database-backed document service, we must evaluate the application topology:
+
+### Topology Options
+
+| Dimension           | Option 1: Integrated Next.js Fullstack (Single App)             | Option 2: Turborepo Monorepo (Split Frontend & Backend)                              |
+| :------------------ | :-------------------------------------------------------------- | :----------------------------------------------------------------------------------- |
+| **Structure**       | Single Next.js 15 repository (`app/`, `lib/`, `server/`)        | Turborepo with `apps/web` (Next.js) + `apps/api` (Hono/Express/Nest) + `packages/db` |
+| **Auth Engine**     | **Better Auth** or **Auth.js v5** via Next.js Route Handlers    | Dedicated auth server / microservice issuing JWT/HttpOnly session cookies            |
+| **Database Access** | Drizzle / Prisma called directly in Server Actions & API routes | Backend API handles all DB operations via REST / tRPC / GraphQL                      |
+| **Deployment**      | Single container / Vercel deployment                            | Independent deployments for Frontend and API services                                |
+| **Complexity**      | **Low to Moderate** — fast iteration, zero IPC overhead         | **High** — requires monorepo tooling, CI pipelines, CORS, shared packages            |
+
+### Architectural Decision Questions
+
+1. **Do we need a separate backend (Monorepo), or is Next.js fullstack sufficient?**
+   - _Verdict:_ Next.js 15 (Node.js runtime with Route Handlers, Server Actions, and connection-pooled Drizzle/Prisma) is already a complete fullstack framework. Unless we plan a separate native mobile client or separate Python/Go microservices, **Integrated Next.js Fullstack** provides maximum development velocity without monorepo maintenance overhead.
+2. **Which custom auth library fits best?**
+   - **Better Auth (Recommended):** Modern TypeScript-first auth designed for Next.js and fullstack TS. Native two-factor, email verification, OAuth, passkeys, and direct Drizzle/Prisma adapters. Runs entirely on local Postgres with zero external auth API dependencies.
+   - **Auth.js v5 (NextAuth):** Mature ecosystem, wide provider support, but historically slower schema evolution and breaking API changes.
+3. **How does Liveblocks auth transition with custom auth?**
+   - With local Postgres + Better Auth, `POST /api/liveblocks-auth` simply verifies the local session cookie (`auth.api.getSession`) and issues the Liveblocks token in < 2ms, completely eliminating external Clerk network latency and 503 cascades.
+
+---
+
 ## Suggested commit sequence
 
 ### Option A path

@@ -1,9 +1,9 @@
 "use server";
 
 import { nanoid } from "nanoid";
-import { liveblocks } from "../liveblocks";
+import { liveblocks } from "@/lib/liveblocks";
 import { revalidatePath } from "next/cache";
-import { getAccessType } from "../utils";
+import { getAccessType } from "@/lib/utils";
 import { redirect } from "next/navigation";
 
 export const createDoc = async ({ userId, email }: CreateDocumentParams) => {
@@ -69,6 +69,7 @@ export const getDocuments = async (email: string) => {
     return JSON.parse(JSON.stringify(rooms));
   } catch (error) {
     console.log(`Error getting document rooms: ${error}`);
+    return { data: [] };
   }
 };
 

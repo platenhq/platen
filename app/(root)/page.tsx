@@ -3,7 +3,7 @@ import { getDocuments } from "@/lib/actions/room.actions";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { RoomData } from "@liveblocks/node";
-import HomeDashboard from "@/components/ui/home/HomeDashboard";
+import HomeDashboard from "@/components/home/HomeDashboard";
 
 type RoomDocumentsProps = {
   data: RoomData[];

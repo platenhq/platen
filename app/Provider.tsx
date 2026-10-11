@@ -1,7 +1,7 @@
 "use client";
 import { LiveblocksProvider } from "@liveblocks/react";
 import { ClientSideSuspense } from "@liveblocks/react/suspense";
-import Loader from "@/components/ui/common/Loader";
+import Loader from "@/components/shared/Loader";
 import { getClerkUsers, getDocumentUsers } from "@/lib/actions/user.actions";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
