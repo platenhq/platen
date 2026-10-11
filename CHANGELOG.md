@@ -1,5 +1,87 @@
 # Changelog
 
+## [0.1.4](https://github.com/platenhq/platen/compare/v0.1.3...v0.1.4) (2026-10-11)
+
+
+### ✨ Exciting New Features
+
+* **canvas:** add interactive image blocks, contextual toolbar controls, and auth caching ([ebf9036](https://github.com/platenhq/platen/commit/ebf9036ea97a210130369b616013c42a17a6dedc))
+* **canvas:** add synchronized ruler zoom and document scaling controls ([b09d1bd](https://github.com/platenhq/platen/commit/b09d1bd7c3c08bb2b2e943dcd58b383a43e7f723))
+* **canvas:** implement print-accurate paper shell layout with desktop viewport ([b801135](https://github.com/platenhq/platen/commit/b801135da60d80a367503a207aaa74fa3dc621ea))
+* **collaboration:** add notification error boundary and streamline editor history ([6806560](https://github.com/platenhq/platen/commit/6806560a81a0fd0505889698fcba9e618916ff17))
+* **editor:** add callout blocks, media embeds, and menubar dialogs ([ecd84fe](https://github.com/platenhq/platen/commit/ecd84fe23465e40f3d154e89a653e5f8a868c54f))
+* **editor:** add interactive image blocks, drag resizing, and insertion dialogs ([d80d9a7](https://github.com/platenhq/platen/commit/d80d9a7cb2c1905f91ce236bab6d2ac4e8bd7bb9))
+* **editor:** add visual list presets and scoped checklist strikethrough ([a80fe4b](https://github.com/platenhq/platen/commit/a80fe4b70112081bed2a08020f688708193cda69))
+* **editor:** implement application menu bar with document action dropdowns ([fc24415](https://github.com/platenhq/platen/commit/fc244153facae5ae494697595fb9d237070de1f3))
+* **editor:** implement application menu bar, multi-page canvas dividers, and platen rebrand ([be64927](https://github.com/platenhq/platen/commit/be649273afff0e7dc79798e2b15f1accd3bc3cb1))
+* **editor:** implement continuous multi-page canvas with page dividers ([c2a355c](https://github.com/platenhq/platen/commit/c2a355cb89abc82e9d99a38e33b15d7af308ec9f))
+* **editor:** implement enterprise page canvas, dynamic ruler, table UX, and advanced toolbar expansion ([3d35193](https://github.com/platenhq/platen/commit/3d351936a4d7ddbd1525526316db1c2cba113fd7))
+* **editor:** implement enterprise page canvas, interactive tables, ribbon toolbar, and rich media blocks ([fbe257f](https://github.com/platenhq/platen/commit/fbe257fe46014502ddc6aa9449eb1fe23147b170))
+* **editor:** implement table grid dimension picker and page break node ([94fbb92](https://github.com/platenhq/platen/commit/94fbb92da260f8edce24f0447f1f5c24007d9d7a))
+* **layout:** introduce dynamic page canvas and reactive document ruler ([c5a7a4f](https://github.com/platenhq/platen/commit/c5a7a4f08c02f2229d280ff4586c85918bd162dd))
+* **ruler:** add horizontal document ruler with inch subdivisions and margin zones ([6d910ef](https://github.com/platenhq/platen/commit/6d910efc357afdf1b2877fbf7249277bfab072ba))
+* **table:** add contextual toolbar and live formatting synchronization ([40a40a1](https://github.com/platenhq/platen/commit/40a40a108ff937e8aac6584b0c55178229c9f1b9))
+* **table:** add enterprise table canvas, contextual toolbar, and interactive cell controls ([87aa26f](https://github.com/platenhq/platen/commit/87aa26fb7b943667be76f232132b923b8fbcb1e4))
+* **table:** add interactive cell action menu and base table styling ([a700ce3](https://github.com/platenhq/platen/commit/a700ce3ed2a11e70590bb52e457e34ef7e7e866a))
+* **table:** add paragraph buffer lines, keyboard navigation, and refined cell styling ([633082e](https://github.com/platenhq/platen/commit/633082e82be867c3ec0d9d5c126ba73aa3caefc6))
+* **table:** add proportional column resizer with fit-to-page layout ([542c969](https://github.com/platenhq/platen/commit/542c969ae9ddf4dd5945772c34ef88445489ff92))
+* **toolbar:** add character transforms, line spacing, and format reset ([f8e0683](https://github.com/platenhq/platen/commit/f8e0683cd16aa5865bcf251a18638b53eb57ca16))
+* **toolbar:** add contextual image controls and selection retention for overflow menus ([2d8f042](https://github.com/platenhq/platen/commit/2d8f042792a50c42c2785f3ef48d359d7c510a64))
+* **toolbar:** implement comprehensive color matrix and custom picker modal ([bfc8784](https://github.com/platenhq/platen/commit/bfc87848ee7e32ae1f79e19fb63e0836f49451c7))
+* **toolbar:** implement responsive ribbon overflow and custom color modal ([b35fd61](https://github.com/platenhq/platen/commit/b35fd612054b706a0dc886bf77a4b12d8d22652a))
+* **toolbar:** implement styled list presets and indentation controls ([991c301](https://github.com/platenhq/platen/commit/991c301a1b7586198318dd6f623a2f04adcab3f7))
+* **toolbar:** integrate page setup controls and assemble main editor ribbon ([04690b6](https://github.com/platenhq/platen/commit/04690b637a79c763298a6400fc930b46991851ad))
+* **ui:** implement standardized component wrappers over design system primitives ([b5a447a](https://github.com/platenhq/platen/commit/b5a447a8c42a1f176671acab6e5870f6ab32b29e))
+* **ui:** relocate and standardize standalone color modal and picker components ([ee6fc13](https://github.com/platenhq/platen/commit/ee6fc13b9be82bb1826a94319383d6eb15cf4c00))
+
+
+### 🐞 Bug Fixes
+
+* **auth:** add session identity caching and document query fallbacks ([c735a3d](https://github.com/platenhq/platen/commit/c735a3d48eb896520622b07669ee2b82a9618faf))
+* **collaboration:** stabilize initial document synchronization and editor root ([80c5cf8](https://github.com/platenhq/platen/commit/80c5cf8fb7ac360efd04dd1dcf04a63c7318f354))
+* **table:** eliminate cell action menu lag and selection desynchronization ([bdb13b2](https://github.com/platenhq/platen/commit/bdb13b22cbb4f43ca34d7cb2e3dbe712c154b184))
+* **ui:** eliminate focus outlines across toolbar buttons and dropdown menus ([79ecdd7](https://github.com/platenhq/platen/commit/79ecdd77c3fabf1f8f858dae6efd0da0a1ab6f5b))
+
+
+### ♻️ Code Refactoring
+
+* **structure:** isolate design system primitives and relocate domain components ([ea2c19b](https://github.com/platenhq/platen/commit/ea2c19bfa84293c5fd3bc076d9e8e54ad463a949))
+* **toolbar:** migrate editor formatting controls to standardized button wrappers ([9b714c3](https://github.com/platenhq/platen/commit/9b714c32d0b8444b686bf65ebbdc62fe0d833cec))
+* **toolbar:** modernize formatting dropdowns and remove legacy portal components ([e4ce5c8](https://github.com/platenhq/platen/commit/e4ce5c8ab5ffd8a0fed390160d8e5d692dd90d3a))
+* **ui:** standardize editor interactive controls and decouple domain architecture ([06a9b75](https://github.com/platenhq/platen/commit/06a9b750f6ebed17ba63ed0239e5bb532480c104))
+
+
+### 📚 Documentation
+
+* **phase-2:** document custom color contracts and popover guidelines ([e5e4b2f](https://github.com/platenhq/platen/commit/e5e4b2f4e518ccaab6a71136c5ff784d61e85420))
+* **plan:** integrate platen engine multi-sheet canvas into phase two roadmap ([3fcd0c1](https://github.com/platenhq/platen/commit/3fcd0c18ffc0cf6d4d0540a53d247819e2250ba3))
+* **plans:** mark image insertion and contextual canvas controls as completed in phase 2 ([f7d82e6](https://github.com/platenhq/platen/commit/f7d82e68fee46eb9a8131d87728f97ee5cdd001d))
+* **plans:** update table implementation roadmap and database persistence architecture ([2d4274b](https://github.com/platenhq/platen/commit/2d4274b72915fdd65ec982ddd872f73023fc589f))
+* **plan:** synchronize phase two point four completed milestones ([3cb6e1f](https://github.com/platenhq/platen/commit/3cb6e1f73185732f313264291914e796b32b2202))
+* **plan:** update phase two roadmap for application menu bar and insert architecture ([49a382c](https://github.com/platenhq/platen/commit/49a382caefbe586328eea1cf500149551ed8a0de))
+* **prerequisites:** update Node.js requirement to version 24 ([1446be2](https://github.com/platenhq/platen/commit/1446be2d31dfa4c832562de375681144c277abe8))
+* **readme:** add live demo deployment link and license section ([9d09cb1](https://github.com/platenhq/platen/commit/9d09cb169b1b522c8d177ade8106876bc1f75f9e))
+* **roadmap:** expand phase 2 table specifications and update agent protocols ([b6b61e9](https://github.com/platenhq/platen/commit/b6b61e93c9090e861aa239bf91b898986cef6211))
+* **roadmap:** formalize component architecture, ribbon layout, and table tools ([cddd02b](https://github.com/platenhq/platen/commit/cddd02bfd3afdc04ebef06cee33ccfa4deb6f1c2))
+* **roadmap:** integrate toolbar formatting expansion and renumber roadmap phases ([3a7e0c7](https://github.com/platenhq/platen/commit/3a7e0c71c268a1a19c750dd49a059f5a8bb70548))
+* **roadmap:** update phase two enterprise editor table milestones ([e911352](https://github.com/platenhq/platen/commit/e911352b1295f3ab1bafbd66a72a990ef84c7dae))
+* update development roadmap and bump Node.js prerequisites ([4a6d71d](https://github.com/platenhq/platen/commit/4a6d71d8458b9776b80aadbb6086d3156170072a))
+
+
+### 🛠️ CI/CD & Tooling
+
+* **security:** execute open-source gitleaks binary directly in leak scan ([9c91e57](https://github.com/platenhq/platen/commit/9c91e57f4fe13a9c23c88dd2be301881f77b1996))
+
+
+### 🔧 Maintenance
+
+* **deps:** patch fast-uri vulnerability to pass security audit ([6e85f45](https://github.com/platenhq/platen/commit/6e85f4532d3be55d6d177b7412bb89cc46ec559c))
+* **deps:** update dependencies and security overrides to patch audit advisories ([2a2b6a7](https://github.com/platenhq/platen/commit/2a2b6a7a535d18bf429d414baae821756c8f312a))
+* **deps:** update dependencies and security overrides to patch audit advisories ([92e4d7d](https://github.com/platenhq/platen/commit/92e4d7de92f24d3045100d3a3e6cf81ca5597978))
+* **deps:** update dependencies to resolve security audit advisories ([d35ebc2](https://github.com/platenhq/platen/commit/d35ebc29c8712605a29b683d41f1a9d662c39426))
+* **meta:** rebrand application to platen and add mit license ([c30ef3c](https://github.com/platenhq/platen/commit/c30ef3c6ad1efd05892cc15358f87b9cecb74dab))
+* **vscode:** remove code spell checker from workspace recommendations ([1c2830c](https://github.com/platenhq/platen/commit/1c2830cd03523b9dd31e1f057694da1258bfeacc))
+
 ## [0.1.3](https://github.com/Trayshmhirk/docs-editor/compare/v0.1.2...v0.1.3) (2026-08-24)
 
 
