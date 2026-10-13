@@ -134,6 +134,7 @@ function ImageComponent({
     startWidth: number;
     startX: number;
     startY: number;
+    maxHeight: number;
   }>({
     currentHeight: 0,
     currentWidth: 0,
@@ -144,6 +145,7 @@ function ImageComponent({
     startWidth: 0,
     startX: 0,
     startY: 0,
+    maxHeight: 4000,
   });
 
   // ── CLICK HANDLER ───────────────────────────────────────────────────────────
@@ -259,7 +261,13 @@ function ImageComponent({
       // Its clientWidth = exact printable content-area width — no padding guesswork.
       const contentAreaWidth = wrapperEl.parentElement?.clientWidth ?? 700;
       const maxWidth = contentAreaWidth;
-      const maxHeight = 4000; // not bounded by page height
+
+      // In paged mode, clamp image height to usable page height to prevent infinite page expansion
+      const rawUsableHeight =
+        getComputedStyle(wrapperEl).getPropertyValue("--platen-usable-height");
+      const parsedUsableHeight = parseFloat(rawUsableHeight);
+      const maxHeight =
+        Number.isFinite(parsedUsableHeight) && parsedUsableHeight > 0 ? parsedUsableHeight : 4000;
 
       // Commit current rendered dimensions as px on the wrapper immediately.
       // This converts 'auto' to a concrete pixel value before drag begins.
@@ -276,6 +284,7 @@ function ImageComponent({
       pos.startX = event.clientX;
       pos.startY = event.clientY;
       pos.direction = direction;
+      pos.maxHeight = maxHeight;
       pos.isResizing = true;
 
       // Set drag cursor on body
@@ -316,8 +325,12 @@ function ImageComponent({
           let diff = p.startX - moveEvent.clientX;
           if (p.direction & Direction.east) diff = -diff;
 
-          const newWidth = clamp(p.startWidth + diff, MIN_IMAGE_DIMENSION, maxWidth);
-          const newHeight = newWidth / p.ratio;
+          let newWidth = clamp(p.startWidth + diff, MIN_IMAGE_DIMENSION, maxWidth);
+          let newHeight = newWidth / p.ratio;
+          if (newHeight > p.maxHeight) {
+            newHeight = p.maxHeight;
+            newWidth = newHeight * p.ratio;
+          }
 
           wrapperEl.style.width = `${newWidth}px`;
           wrapperEl.style.height = `${newHeight}px`;
@@ -328,7 +341,7 @@ function ImageComponent({
           let diff = p.startY - moveEvent.clientY;
           if (p.direction & Direction.south) diff = -diff;
 
-          const newHeight = clamp(p.startHeight + diff, MIN_IMAGE_DIMENSION, maxHeight);
+          const newHeight = clamp(p.startHeight + diff, MIN_IMAGE_DIMENSION, p.maxHeight);
           wrapperEl.style.height = `${newHeight}px`;
           p.currentHeight = newHeight;
           p.currentWidth = p.startWidth;
@@ -453,6 +466,7 @@ function ImageComponent({
           height: height === "inherit" ? "auto" : `${height}px`,
           // maxWidth keeps the image inside the page on first insert
           maxWidth: "100%",
+          maxHeight: "var(--platen-usable-height, none)",
         }}
       >
         {/* ── IMAGE FRAME: clips overflow for cover/fill objectFit ── */}

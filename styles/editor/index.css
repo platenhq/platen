@@ -633,3 +633,33 @@ pre::-webkit-scrollbar-thumb {
   line-height: 0;
   user-select: none;
 }
+
+/* -------------- PLATEN ENGINE MULTI-SHEET CANVAS --------------- */
+.platen-engine-canvas {
+  width: 100%;
+  height: 100%;
+  user-select: text;
+}
+
+/* Blocks with a visible box move to the next page whole instead of painting across the gap */
+.platen-engine-canvas .editor-code,
+.platen-engine-canvas .editor-callout,
+.platen-engine-canvas .callout {
+  display: flow-root;
+}
+
+/* The wrapper moves with its image instead of stretching across the page gap */
+.platen-engine-canvas .editor-image-wrapper {
+  display: flow-root;
+}
+
+/* Nothing unbreakable may be taller than a page */
+.platen-engine-canvas .editor-image-wrapper,
+.platen-engine-canvas .editor-image-wrapper > div,
+.platen-engine-canvas .editor-image-wrapper > div > div {
+  max-height: var(--platen-usable-height);
+}
+
+.platen-engine-canvas .editor-input img {
+  max-height: var(--platen-usable-height);
+}
