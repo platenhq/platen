@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
+export type DocumentViewMode = "pages" | "pageless" | "paged-engine";
 export type PageSizePreset = "letter" | "a4" | "legal" | "pageless";
 export type MarginPreset = "normal" | "narrow" | "moderate" | "wide";
 export type ZoomPreset = "fit" | 50 | 75 | 90 | 100 | 125 | 150 | 200;
@@ -16,6 +17,8 @@ export interface PageLayoutConfig {
   paddingX: number; // in pixels
   paddingY: number; // in pixels
   isPageless: boolean;
+  viewMode: DocumentViewMode;
+  isPagedEngine: boolean;
 }
 
 export const PAGE_SIZE_SPECS: Record<
@@ -54,6 +57,9 @@ interface DocumentLayoutContextValue {
   setPageSize: (size: PageSizePreset) => void;
   setMargins: (margin: MarginPreset) => void;
   setZoom: (zoom: ZoomPreset) => void;
+  setViewMode: (mode: DocumentViewMode) => void;
+  enginePageCount: number;
+  setEnginePageCount: (count: number) => void;
 }
 
 const DocumentLayoutContext = createContext<DocumentLayoutContextValue | undefined>(undefined);
@@ -69,12 +75,61 @@ export function DocumentLayoutProvider({
   initialMargins?: MarginPreset;
   initialZoom?: ZoomPreset;
 }): React.JSX.Element {
-  const [pageSize, setPageSize] = useState<PageSizePreset>(initialPageSize);
-  const [margins, setMargins] = useState<MarginPreset>(initialMargins);
-  const [zoom, setZoom] = useState<ZoomPreset>(initialZoom);
+  const STORAGE_KEY = "platen_document_layout_prefs";
+
+  const [pageSize, setPageSizeState] = useState<PageSizePreset>(initialPageSize);
+  const [viewMode, setViewModeState] = useState<DocumentViewMode>(() =>
+    initialPageSize === "pageless" ? "pageless" : "paged-engine",
+  );
+  const [enginePageCount, setEnginePageCount] = useState<number>(1);
+  const [margins, setMarginsState] = useState<MarginPreset>(initialMargins);
+  const [zoom, setZoomState] = useState<ZoomPreset>(initialZoom);
   const [viewportWidth, setViewportWidth] = useState<number>(() =>
     typeof window !== "undefined" ? window.innerWidth : 1200,
   );
+
+  // Hydrate preferences from localStorage on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.viewMode) {
+          // Version 2 migration: if saved has no version or version < 2, upgrade legacy "pages" to "paged-engine"
+          if ((!parsed.version || parsed.version < 2) && parsed.viewMode === "pages") {
+            setViewModeState("paged-engine");
+          } else {
+            setViewModeState(parsed.viewMode);
+          }
+        }
+        if (parsed.pageSize) setPageSizeState(parsed.pageSize);
+        if (parsed.margins) setMarginsState(parsed.margins);
+        if (parsed.zoom !== undefined) setZoomState(parsed.zoom);
+      }
+    } catch {
+      // Ignore localStorage parse errors
+    }
+  }, []);
+
+  // Save preferences to localStorage whenever they change (version 2)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          version: 2,
+          viewMode,
+          pageSize,
+          margins,
+          zoom,
+        }),
+      );
+    } catch {
+      // Ignore quota errors
+    }
+  }, [viewMode, pageSize, margins, zoom]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -86,6 +141,32 @@ export function DocumentLayoutProvider({
     window.addEventListener("resize", handleResize, { passive: true });
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const setPageSize = (size: PageSizePreset) => {
+    setPageSizeState(size);
+    if (size === "pageless") {
+      setViewModeState("pageless");
+    } else if (viewMode === "pageless") {
+      setViewModeState("paged-engine");
+    }
+  };
+
+  const setViewMode = (mode: DocumentViewMode) => {
+    setViewModeState(mode);
+    if (mode === "pageless") {
+      setPageSizeState("pageless");
+    } else if (pageSize === "pageless") {
+      setPageSizeState("letter");
+    }
+  };
+
+  const setMargins = (m: MarginPreset) => {
+    setMarginsState(m);
+  };
+
+  const setZoom = (z: ZoomPreset) => {
+    setZoomState(z);
+  };
 
   const zoomFactor = useMemo<number>(() => {
     if (typeof zoom === "number") {
@@ -103,6 +184,8 @@ export function DocumentLayoutProvider({
   const layout = useMemo<PageLayoutConfig>(() => {
     const sizeSpec = PAGE_SIZE_SPECS[pageSize];
     const marginSpec = MARGIN_SPECS[margins];
+    const isPageless = viewMode === "pageless";
+    const isPagedEngine = viewMode === "paged-engine";
 
     return {
       pageSize,
@@ -111,11 +194,13 @@ export function DocumentLayoutProvider({
       zoomFactor,
       width: sizeSpec.width,
       minHeight: sizeSpec.height,
-      paddingX: sizeSpec.isPageless ? 48 : marginSpec.padX,
-      paddingY: sizeSpec.isPageless ? 32 : marginSpec.padY,
-      isPageless: sizeSpec.isPageless,
+      paddingX: isPageless ? 48 : marginSpec.padX,
+      paddingY: isPageless ? 32 : marginSpec.padY,
+      isPageless,
+      viewMode,
+      isPagedEngine,
     };
-  }, [pageSize, margins, zoom, zoomFactor]);
+  }, [pageSize, margins, zoom, zoomFactor, viewMode]);
 
   // Keep CSS Variables on :root synchronized
   useEffect(() => {
@@ -135,7 +220,17 @@ export function DocumentLayoutProvider({
   }, [layout]);
 
   return (
-    <DocumentLayoutContext.Provider value={{ layout, setPageSize, setMargins, setZoom }}>
+    <DocumentLayoutContext.Provider
+      value={{
+        layout,
+        setPageSize,
+        setMargins,
+        setZoom,
+        setViewMode,
+        enginePageCount,
+        setEnginePageCount,
+      }}
+    >
       {children}
     </DocumentLayoutContext.Provider>
   );

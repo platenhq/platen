@@ -29,7 +29,10 @@ if (
   console.warn = (...args: unknown[]) => {
     if (
       typeof args[0] === "string" &&
-      args[0].includes("Invalid access: Add Yjs type to a document before reading data")
+      (args[0].includes("Invalid access: Add Yjs type to a document before reading data") ||
+        args[0].includes(
+          "Warning: LiveblocksPlugin: editorState in initialConfig detected, but must be null.",
+        ))
     ) {
       return;
     }

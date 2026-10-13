@@ -114,13 +114,8 @@ export function Editor({ roomId, currentUserType }: Editorprops) {
               <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
             </div>
 
-            <EditorShell>
+            <EditorShell ready={ready}>
               <div className="relative min-h-full">
-                {!ready && (
-                  <div className="bg-surface/80 absolute inset-0 z-30 flex items-center justify-center backdrop-blur-xs">
-                    <Loader />
-                  </div>
-                )}
                 <RichTextPlugin
                   contentEditable={
                     <div className="editor relative min-h-full" ref={onRef}>
@@ -161,17 +156,17 @@ export function Editor({ roomId, currentUserType }: Editorprops) {
                 )}
                 <LinkPlugin hasLinkAttributes={hasLinkAttributes} />
               </div>
-
-              {/* liveblocks plugin */}
-              <LiveblocksPlugin>
-                <FloatingComposer className="border-border bg-surface w-87.5 overflow-hidden rounded-xl border shadow-2xl" />
-                <FloatingThreads
-                  threads={threads}
-                  className="border-border bg-surface rounded-xl border shadow-2xl"
-                />
-                <Comments />
-              </LiveblocksPlugin>
             </EditorShell>
+
+            {/* Liveblocks floating UI — rendered outside the page canvas layer */}
+            <LiveblocksPlugin>
+              <FloatingComposer className="border-border bg-surface w-87.5 overflow-hidden rounded-xl border shadow-2xl" />
+              <FloatingThreads
+                threads={threads}
+                className="border-border bg-surface rounded-xl border shadow-2xl"
+              />
+              <Comments />
+            </LiveblocksPlugin>
           </div>
         </ToolbarContext>
       </DocumentLayoutProvider>

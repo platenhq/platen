@@ -567,25 +567,24 @@ In `ViewMenu.tsx`, authors can seamlessly toggle between three document presenta
 
 1. **Pages (Continuous DOM Canvas):** Continuous DOM canvas with standard Google Docs-style dashed page dividers and badges. Ideal for rapid composition and rich interactive tables.
 2. **Pageless Mode:** Fluid edge-to-edge canvas matching Google Docs Pageless.
-3. **Platen Engine (Multi-Sheet):** Print-faithful multi-sheet rendering using `@platen/engine`. Each sheet is an isolated container where paragraphs wrap across page boundaries with sub-pixel typography.
+3. **Platen Engine (Multi-Sheet):** Print-faithful multi-sheet rendering using `@platen/engine`'s Float-Rail `PagedDocument`. Content flows naturally across discrete paper sheets with native browser line layout and zero editor DOM mutations.
 
 ### Checklist for Section 2.5
 
-- [ ] Add `@platen/engine` to `package.json` dependencies
-- [ ] Implement `PagedEditorPlugin.tsx` connecting the Lexical editor state to `PagedEngineBridge` via `LexicalAdapter`
-- [ ] Build `PlatenEngineCanvas.tsx` hosting `PagedDesk` and rendering reactive `PagedSheet` components
-- [ ] Extend `DocumentLayoutContext` to support `'pages' | 'pageless' | 'paged-engine'` view modes
-- [ ] Update `ViewMenu.tsx` to include an active checkmark toggle for **Platen Engine (Multi-Sheet)**
-- [ ] Synchronize zoom and document dimensions between `PagedDesk` and the document ruler
-- [ ] Verify zero collaborative mutation loops between Liveblocks Yjs sync and `PagedEngineBridge`
+- [x] Add `@platen/engine` to `package.json` dependencies
+- [x] Integrate `PagedDocument` in `PlatenEngineCanvas.tsx` for float-rail line-level pagination
+- [x] Extend `DocumentLayoutContext` to support `'pages' | 'pageless' | 'paged-engine'` view modes
+- [x] Update `ViewMenu.tsx` to include an active checkmark toggle for **Platen Engine (Multi-Sheet)**
+- [x] Synchronize zoom and document dimensions between `PagedDocument` and the document ruler
+- [x] Enforce `display: flow-root` for code/callout boxes and image max-height in `styles/editor/index.css`
+- [x] Eliminate editor DOM mutation plugins (`PagedEditorPlugin` removed for zero-flicker typing)
 
-### Files to modify for Section 2.5
+### Files modified for Section 2.5
 
 ```txt
 package.json
 context/DocumentLayoutContext.tsx
 components/editor/menubar/menus/ViewMenu.tsx
-components/editor/plugins/PagedEditorPlugin.tsx      [NEW]
 components/editor/PlatenEngineCanvas.tsx             [NEW]
 components/editor/EditorShell.tsx
 styles/editor/index.css

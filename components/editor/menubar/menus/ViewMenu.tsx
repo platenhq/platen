@@ -12,7 +12,7 @@ import {
   CustomDropdownSubContent,
 } from "@/components/ui/custom/CustomDropdown";
 import { useDocumentLayout, ZOOM_PRESETS } from "@/context/DocumentLayoutContext";
-import { Check, Eye, FileText, ZoomIn } from "lucide-react";
+import { Check, Eye, FileText, Layers, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ViewMenuProps {
@@ -21,7 +21,7 @@ interface ViewMenuProps {
 
 export const ViewMenu: React.FC<ViewMenuProps> = ({ disabled }) => {
   const [open, setOpen] = useState(false);
-  const { layout, setPageSize, setZoom } = useDocumentLayout();
+  const { layout, setPageSize, setZoom, setViewMode } = useDocumentLayout();
 
   return (
     <CustomDropdown open={open} onOpenChange={setOpen}>
@@ -39,18 +39,57 @@ export const ViewMenu: React.FC<ViewMenuProps> = ({ disabled }) => {
       </CustomDropdownTrigger>
 
       <CustomDropdownContent className="w-60 p-1.5" align="start">
-        {/* Mode switcher: Pages vs Pageless */}
+        {/* Mode switcher: Pages, Pageless, Platen Engine */}
+        <div className="text-muted-foreground px-3 py-1 text-xs font-medium">Document View</div>
         <CustomDropdownItem
           className="px-3 py-2 text-sm"
+          isActive={layout.viewMode === "paged-engine"}
           onClick={() => {
-            setPageSize(layout.isPageless ? "letter" : "pageless");
+            setViewMode("paged-engine");
             setOpen(false);
           }}
         >
-          <div className="flex items-center gap-3">
-            <FileText className="text-muted-foreground size-4" />
-            <span>{layout.isPageless ? "Switch to Pages mode" : "Switch to Pageless"}</span>
+          <div className="flex flex-1 items-center gap-3">
+            <Layers className="text-muted-foreground size-4" />
+            <span>Pages</span>
           </div>
+          {layout.viewMode === "paged-engine" && (
+            <Check className="size-4 text-emerald-600 dark:text-emerald-400" />
+          )}
+        </CustomDropdownItem>
+
+        <CustomDropdownItem
+          className="px-3 py-2 text-sm"
+          isActive={layout.viewMode === "pages"}
+          onClick={() => {
+            setViewMode("pages");
+            setOpen(false);
+          }}
+        >
+          <div className="flex flex-1 items-center gap-3">
+            <FileText className="text-muted-foreground size-4" />
+            <span>Continuous (legacy)</span>
+          </div>
+          {layout.viewMode === "pages" && (
+            <Check className="size-4 text-emerald-600 dark:text-emerald-400" />
+          )}
+        </CustomDropdownItem>
+
+        <CustomDropdownItem
+          className="px-3 py-2 text-sm"
+          isActive={layout.viewMode === "pageless"}
+          onClick={() => {
+            setViewMode("pageless");
+            setOpen(false);
+          }}
+        >
+          <div className="flex flex-1 items-center gap-3">
+            <Eye className="text-muted-foreground size-4" />
+            <span>Pageless</span>
+          </div>
+          {layout.viewMode === "pageless" && (
+            <Check className="size-4 text-emerald-600 dark:text-emerald-400" />
+          )}
         </CustomDropdownItem>
 
         <CustomDropdownSeparator />

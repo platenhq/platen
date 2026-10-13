@@ -2,12 +2,15 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import DocumentRuler from "./DocumentRuler";
+import PlatenEngineCanvas from "./PlatenEngineCanvas";
+import Loader from "@/components/shared/Loader";
 import { useDocumentLayout } from "@/context/DocumentLayoutContext";
 import { cn } from "@/lib/utils";
 
 interface EditorShellProps {
   children: React.ReactNode;
   showRuler?: boolean;
+  ready?: boolean;
 }
 
 /**
@@ -15,13 +18,18 @@ interface EditorShellProps {
  * - Gray desktop viewport with vertical scroll (fluid white canvas in Pageless mode)
  * - Synchronized horizontal ruler sitting above the canvas with lockstep zoom scaling
  * - Authentic Google Docs multi-page pagination with discrete sheets & margin awareness
+ * - Platen Engine discrete multi-sheet layout mode
  */
-export const EditorShell: React.FC<EditorShellProps> = ({ children, showRuler = true }) => {
+export const EditorShell: React.FC<EditorShellProps> = ({
+  children,
+  showRuler = true,
+  ready = true,
+}) => {
   const viewportRef = useRef<HTMLDivElement>(null);
   const rulerScrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const { layout } = useDocumentLayout();
-  const { width, minHeight, paddingX, paddingY, isPageless, zoomFactor } = layout;
+  const { width, minHeight, paddingX, paddingY, isPageless, isPagedEngine, zoomFactor } = layout;
 
   const [pageCount, setPageCount] = useState<number>(1);
 
@@ -49,6 +57,8 @@ export const EditorShell: React.FC<EditorShellProps> = ({ children, showRuler = 
    */
   // Dynamically compute pageCount based on content height without layout thrashing
   useEffect(() => {
+    if (isPagedEngine) return;
+
     const el = contentRef.current;
     if (!el) return;
 
@@ -82,7 +92,7 @@ export const EditorShell: React.FC<EditorShellProps> = ({ children, showRuler = 
       clearTimeout(timeoutId);
       resizeObserver.disconnect();
     };
-  }, [isPageless, minHeight, paddingY]);
+  }, [isPageless, isPagedEngine, minHeight, paddingY]);
 
   const scaledWidth = width * zoomFactor;
 
@@ -122,7 +132,17 @@ export const EditorShell: React.FC<EditorShellProps> = ({ children, showRuler = 
           isPageless && "pageless",
         )}
       >
-        {isPageless ? (
+        {!ready && (
+          <div className="bg-surface-canvas/80 absolute inset-0 z-40 flex items-center justify-center backdrop-blur-xs">
+            <Loader />
+          </div>
+        )}
+        {isPagedEngine ? (
+          /* Platen Engine Mode: High-Fidelity Discrete Multi-Sheet PagedDesk */
+          <div ref={contentRef} className="relative flex w-full flex-1 flex-col items-center">
+            <PlatenEngineCanvas className="w-full">{children}</PlatenEngineCanvas>
+          </div>
+        ) : isPageless ? (
           /* Pageless Mode: Fluid continuous canvas that auto-expands with content */
           <div
             ref={contentRef}
