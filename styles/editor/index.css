@@ -646,11 +646,15 @@ pre::-webkit-scrollbar-thumb {
 .platen-engine-canvas .editor-callout,
 .platen-engine-canvas .callout {
   display: flow-root;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* The wrapper moves with its image instead of stretching across the page gap */
-.platen-engine-canvas .editor-image-wrapper {
+.platen-engine-canvas .editor-paragraph:has(> .editor-image-wrapper) {
   display: flow-root;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Nothing unbreakable may be taller than a page */
@@ -658,6 +662,13 @@ pre::-webkit-scrollbar-thumb {
 .platen-engine-canvas .editor-image-wrapper > div,
 .platen-engine-canvas .editor-image-wrapper > div > div {
   max-height: var(--platen-usable-height);
+}
+
+/* Text in a paragraph that holds an image reads as the image's caption */
+.editor-paragraph:has(> .editor-image-wrapper) {
+  text-align: center;
+  font-size: 0.875em;
+  color: var(--muted-foreground);
 }
 
 .platen-engine-canvas .editor-input img {
