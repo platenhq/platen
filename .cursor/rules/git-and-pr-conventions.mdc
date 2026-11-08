@@ -100,41 +100,26 @@ Conventional format, reflecting the primary change in the branch.
 ```markdown
 ## Summary
 
-One short paragraph describing the overall change and why.
+Introduces document-level page setup so every collaborator sees the same paper size and
+margins. This ensures page breaks, page counts and printed output match across sessions.
 
 ## Key Changes
 
-- Flat bullet one
-- Flat bullet two
-- Flat bullet three
+- Save paper size and margins with the document instead of the browser.
+- Apply page setup changes to every open session without a reload.
+- Restrict page setup changes to collaborators with write access.
 ```
 
 ### PR body rules
 
-- **Summary**: high-level purpose only
-- **Key Changes**: flat list — no nested or indented sub-bullets
+- **Tone**: formal and technical, like a release note; no casual phrasing or first person
+- **Title**: verb-led and specific, e.g. `fix(editor): prevent unbreakable blocks from collapsing at page breaks`; commas only for two or three distinct modules
+- **Breaking Changes**: a section before Summary, only when needed
+- **Summary**: one paragraph opening with a present-tense verb ("Introduces…"), then "This includes…" or "This ensures…"
+- **Key Changes**: flat list, no nested bullets; one behaviour per bullet, imperative verb first, ending with a full stop
+- No Test plan section
 - Derive content from `git log` of commits in the branch
-- Include a **Test plan** checklist when the change affects runtime behavior
-
-### PR command format
-
-```bash
-gh pr create --title "feat(scope): short title" --body "$(cat <<'EOF'
-## Summary
-
-...
-
-## Key Changes
-
-- ...
-- ...
-
-## Test plan
-
-- [ ] ...
-EOF
-)"
-```
+- `gh` is not installed on the maintainer's machine: push and hand over the title and body
 
 ## Branch strategy
 

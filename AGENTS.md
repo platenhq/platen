@@ -60,7 +60,7 @@ Before modifying code, you must analyze the scope of changes and present a clear
 ### 2. Pull Request (PR) Standard
 
 - **Format:** Ensure the final PR description is concise, flat, and conventional.
-- **Content:** Follow `.github/pull_request_template.md`: a high-level **Summary** section, a flat list of **Key Changes**, and a **Test plan** when the change affects runtime behavior.
+- **Content:** Formal release-note tone. A verb-led title naming the main capability (commas only for two or three distinct modules), a **Breaking Changes** section only when needed, a one-paragraph **Summary** opening with a present-tense verb ("Introduces…"), and a flat list of **Key Changes**, each an imperative full sentence ending in a full stop. No Test plan section. See `CLAUDE.md` section 4.3 for the full template.
 - **Structural Constraint:** You must use flat, sequential items for the changes list. Do not generate nested or indented bullet points.
 - **Key Changes Depth:** Each key change in the PR must reflect a distinct functional capability or user-facing behavior, not a restatement of file names. The level of detail must reflect the total functional scope of the PR.
 - **Context Retrieval:** When tasked with generating a PR description for specific Commit IDs, you must first execute `git log` or relevant git retrieval commands to inspect the exact commit messages. Generate the PR Title and content strictly from the actual recorded commit logs, never from assumptions.

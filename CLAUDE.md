@@ -132,11 +132,46 @@
 
 ### 4.3 Pull Requests
 
-- Title in Conventional Commit format.
-- Body follows `.github/pull_request_template.md`: a one-paragraph **Summary**, a flat list of
-  **Key Changes** (no nested bullets), and a **Test plan** when runtime behaviour changes.
-- Key changes are discrete functional capabilities, not file names.
-- Generate from the real commits (`git log`), never from assumptions.
+- **Tone:** formal, professional and technical, as in a release note. No casual phrasing, no
+  first person, no marketing language.
+- **Title:** a conventional commit header, lowercase after the scope, that starts with a verb
+  and names the PR's main capability in specific terms:
+  `feat(editor): implement table grid dimension picker and page break node`,
+  `fix(editor): prevent unbreakable blocks from collapsing at page breaks`.
+  Join capabilities with commas only when the PR delivers two or three distinct modules. A long
+  comma list is for release PRs into `master`, which bundle several merged PRs. Never name
+  roadmap phases in a title.
+- **Template:** these sections, in this order. Breaking Changes appears only when something
+  existing stops working or must be migrated.
+
+  ```markdown
+  ## Breaking Changes
+
+  - One bullet per change that existing users, documents or deployments must account for.
+
+  ## Summary
+
+  Introduces document-level page setup so every collaborator sees the same paper size and
+  margins. This ensures page breaks, page counts and printed output match across sessions.
+
+  ## Key Changes
+
+  - Save paper size and margins with the document instead of the browser.
+  - Apply page setup changes to every open session without a reload.
+  - Restrict page setup changes to collaborators with write access.
+  ```
+
+- **Summary:** one short paragraph that opens with a present-tense verb (Introduces, Adds,
+  Fixes, Aggregates) stating what is delivered and for whom, then a sentence starting
+  "This includes…", "This ensures…" or "Additionally…" with the main parts or the effect.
+- **Key Changes bullets:** granular, one specific behaviour each, flat (no nesting), described
+  from the user's or system's side, never as file names. Each starts with an imperative verb
+  (Add, Implement, Introduce, Provide, Enforce, Prevent, Integrate, Restrict, Resolve) and ends
+  with a full stop. Proportional to the change: a large PR gets a long list.
+- No Test plan, Testing or follow-up sections; mention follow-ups and untested areas in chat.
+- Generate from the real commits (`git log` against the base branch), never from assumptions.
+- `gh` is not installed: push the branch and hand the user the PR title and body; the user
+  opens the PR.
 
 ---
 
