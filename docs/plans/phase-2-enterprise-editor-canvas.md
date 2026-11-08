@@ -222,7 +222,9 @@ Line & paragraph spacing
 | A4 (8.27×11.69") | `794px`        | `1123px`                | Moderate (0.75") | `72px`             | `72px`             |
 | Legal (8.5×14")  | `816px`        | `1344px`                | Wide (1.5")      | `144px`            | `96px`             |
 
-Page settings are stored in **Liveblocks Room Metadata** (`liveblocks.updateRoom({ metadata })`) and sync live to collaborators.
+Page settings (view mode, page size, margins, zoom) are stored per browser in `localStorage`
+by `context/DocumentLayoutContext.tsx`. They are a viewing preference and are not synced to
+collaborators. New documents open in the paged view ("Pages", powered by `@platen/engine`).
 
 ### Checklist for toolbar expansion
 
@@ -372,9 +374,11 @@ Elevate the editor canvas from a single static height container into an authenti
    - Viewport background dynamically matches paper background (`bg-surface`) with zero card borders or gray desk boxing, matching Google Docs Pageless.
 3. **Chromium `zoom` Resolution:**
    - Sized the zoom factor conditionally (`zoom: zoomFactor !== 1 ? zoomFactor : undefined`) to prevent Chromium's layout engine from freezing container dimensions during typing.
-4. **Standalone Dedicated Engine Blueprint (`@trayshmhirk/paged-engine`):**
-   - Comprehensive forensic research of Microsoft Word Online completed and documented in the agent knowledge base.
-   - Standalone open-source repository initialized to build the full 6-layer Hybrid Micro-Canvas Track Engine with discrete page margin slicing for future plug-and-play integration.
+4. **Standalone Pagination Engine:**
+   - The original 6-layer Hybrid Micro-Canvas design was replaced by the float-rail engine
+     published as `@platen/engine` (see Section 2.5). The canvas design is preserved on the
+     engine repository's `archive/canvas-engine` branch.
+   - This continuous canvas remains available as **Continuous (legacy)** in the View menu.
 
 ### Checklist for 2.3.C
 
@@ -531,43 +535,40 @@ styles/editor/index.css
 
 ## 2.5 Platen Engine Hybrid Multi-Sheet Canvas Integration
 
-Connect the dedicated `@platen/engine` library into Platen as a high-fidelity, discrete multi-sheet layout mode. While **Pages Mode** (Section 2.3.C) provides continuous, low-latency DOM typing with visual dashed dividers, **Platen Engine Mode** brings true desktop publishing fidelity by slicing text runs into discrete physical paper sheets with absolute line tracking and strict CSS containment (`contain: strict`).
+Connect the dedicated `@platen/engine` library into Platen as the default, discrete
+multi-sheet layout. Content flows across separate paper sheets with page breaks between lines,
+including in the middle of a paragraph, while the editor stays one native `contenteditable`
+flow. The engine never reads or writes the Lexical DOM or document, so the caret, selection,
+undo and Liveblocks collaboration behave exactly as in the other modes.
 
-### Core Architectural Synergy
+### Float-Rail Architecture
 
 ```txt
-┌────────────────────────────────────────────────────────────────────────┐
-│                        Liveblocks Lexical Composer                     │
-│               (Single Source of Truth / Collaborative AST)             │
-└──────────────────────────────────┬─────────────────────────────────────┘
-                                   │ Updates / AST
-                                   ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│                        LexicalAdapter (@platen/engine)                 │
-│               (Extracts ParagraphBlocks, TextRuns, Bitmasks)           │
-└──────────────────────────────────┬─────────────────────────────────────┘
-                                   │ Batching via rAF
-                                   ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│                      PagedEngineBridge (@platen/engine)                │
-│                 (Offscreen MetricEngine -> LayoutSlicer)               │
-└──────────────────────────────────┬─────────────────────────────────────┘
-                                   │ PageSlice[]
-                                   ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│                     PlatenEngineCanvas / PagedDesk                     │
-│         [ PagedSheet 1 ]      [ PagedSheet 2 ]      [ PagedSheet N ]   │
-│         (contain: strict)     (contain: strict)     (contain: strict)  │
-└────────────────────────────────────────────────────────────────────────┘
+PagedDocument (@platen/engine)
+├── sheets      decorative paper boxes painted behind the content, with "Page X of Y" footers
+└── flow        one formatting context, padded by the page margins
+    ├── rail    zero-height strip of full-width floats, one per gap between printable areas
+    └── content the Lexical editor (.editor-input)
 ```
+
+- A line cannot sit beside a full-width float, so the browser's own line layout moves any
+  line that would land in a gap (bottom margin + desk gutter + top margin) to the next sheet.
+- The engine only computes the page count, from the content height, with one
+  `ResizeObserver`.
+- Blocks that form their own formatting context (tables, `flow-root` code blocks, callouts,
+  image paragraphs) move to the next sheet whole.
+- Zoom is a CSS transform, so page breaks are identical at every zoom level.
+- See the engine's `README.md` and `ARCHITECTURE.md` for host layout requirements.
 
 ### View Mode Integration
 
-In `ViewMenu.tsx`, authors can seamlessly toggle between three document presentations:
+In `ViewMenu.tsx`, authors can toggle between three document presentations:
 
-1. **Pages (Continuous DOM Canvas):** Continuous DOM canvas with standard Google Docs-style dashed page dividers and badges. Ideal for rapid composition and rich interactive tables.
-2. **Pageless Mode:** Fluid edge-to-edge canvas matching Google Docs Pageless.
-3. **Platen Engine (Multi-Sheet):** Print-faithful multi-sheet rendering using `@platen/engine`'s Float-Rail `PagedDocument`. Content flows naturally across discrete paper sheets with native browser line layout and zero editor DOM mutations.
+1. **Pages (default, `paged-engine`):** Print-faithful multi-sheet layout using
+   `@platen/engine`'s `PagedDocument`.
+2. **Continuous (legacy, `pages`):** The Section 2.3.C continuous canvas with dashed page
+   dividers and badges.
+3. **Pageless (`pageless`):** Fluid edge-to-edge canvas matching Google Docs Pageless.
 
 ### Checklist for Section 2.5
 
@@ -578,6 +579,10 @@ In `ViewMenu.tsx`, authors can seamlessly toggle between three document presenta
 - [x] Synchronize zoom and document dimensions between `PagedDocument` and the document ruler
 - [x] Enforce `display: flow-root` for code/callout boxes and image max-height in `styles/editor/index.css`
 - [x] Eliminate editor DOM mutation plugins (`PagedEditorPlugin` removed for zero-flicker typing)
+- [x] Make the paged view the default for new documents, keeping the continuous canvas as a legacy option
+- [ ] Upgrade `@platen/engine` to 0.3 for sheet-for-sheet printing and PDF
+- [ ] Print in light colours when the app is in dark mode, restoring the theme afterwards
+- [ ] Hide editor chrome inside the document (floating menus, placeholder, image handles, table resizer, remote cursors) when printing
 
 ### Files modified for Section 2.5
 

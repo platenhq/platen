@@ -35,30 +35,32 @@ feat(collaboration): add live cursors and presence
 
 ## Phases
 
-| Phase   | File                                                                               | Focus                                                    | Depends on                |
-| ------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------- |
-| **0**   | [phase-0-tooling.md](./phase-0-tooling.md)                                         | Prettier, Husky, commitlint, CI/CD, security             | —                         |
-| **1**   | [phase-1-foundation-collaboration.md](./phase-1-foundation-collaboration.md)       | Dependency upgrades, Tailwind v4, seamless collaboration | Phase 0                   |
-| **1.5** | [phase-1.5-performance-and-ui-revamp.md](./phase-1.5-performance-and-ui-revamp.md) | Dev speed (Turbopack), Google Docs sharing, UI revamp    | Phase 1                   |
-| **2**   | [phase-2-enterprise-editor-canvas.md](./phase-2-enterprise-editor-canvas.md)       | Page canvas, ruler, toolbar expansion, outline, comments | Phase 1.5                 |
-| **3**   | [phase-3-core-product-features.md](./phase-3-core-product-features.md)             | Version history, search, export, Postgres metadata       | Phase 1.5, Phase 2        |
-| **4**   | [phase-4-ai-features.md](./phase-4-ai-features.md)                                 | Inline AI editing, formatting, summarization             | Phase 1, Phase 2          |
-| **5**   | [phase-5-auth-strategy.md](./phase-5-auth-strategy.md)                             | Clerk customization vs custom auth                       | Phase 0, Phase 3 (for DB) |
+| Phase   | File                                                                               | Focus                                                    | Depends on                | Status                                     |
+| ------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------- | ------------------------------------------ |
+| **0**   | [phase-0-tooling.md](./phase-0-tooling.md)                                         | Prettier, Husky, commitlint, CI/CD, security             | —                         | Done                                       |
+| **1**   | [phase-1-foundation-collaboration.md](./phase-1-foundation-collaboration.md)       | Dependency upgrades, Tailwind v4, seamless collaboration | Phase 0                   | Done                                       |
+| **1.5** | [phase-1.5-performance-and-ui-revamp.md](./phase-1.5-performance-and-ui-revamp.md) | Dev speed (Turbopack), Google Docs sharing, UI revamp    | Phase 1                   | Done (bundle size audit open)              |
+| **2**   | [phase-2-enterprise-editor-canvas.md](./phase-2-enterprise-editor-canvas.md)       | Page canvas, ruler, toolbar expansion, outline, comments | Phase 1.5                 | In progress (paged printing, 2.6–2.8 open) |
+| **3**   | [phase-3-core-product-features.md](./phase-3-core-product-features.md)             | Version history, search, export, Postgres metadata       | Phase 1.5, Phase 2        | Not started                                |
+| **4**   | [phase-4-ai-features.md](./phase-4-ai-features.md)                                 | Inline AI editing, formatting, summarization             | Phase 1, Phase 2          | Not started                                |
+| **5**   | [phase-5-auth-strategy.md](./phase-5-auth-strategy.md)                             | Clerk customization vs custom auth                       | Phase 0, Phase 3 (for DB) | Not started                                |
 
 ---
 
-## Current codebase snapshot (baseline)
+## Current codebase snapshot
 
-| Area              | Current state                                       |
-| ----------------- | --------------------------------------------------- |
-| **Framework**     | Next.js 15, React 18, TypeScript                    |
-| **Editor**        | Lexical 0.22 + `@liveblocks/react-lexical`          |
-| **Collaboration** | Liveblocks 2.x (rooms, comments, share modal)       |
-| **Auth**          | Clerk 6.x                                           |
-| **Styling**       | Tailwind CSS 3.x (`tailwind.config.ts`)             |
-| **Monitoring**    | Sentry                                              |
-| **Tooling**       | ESLint only — no Prettier, Husky, commitlint, or CI |
-| **Data**          | Liveblocks rooms only — no application database     |
+| Area              | Current state                                                                          |
+| ----------------- | -------------------------------------------------------------------------------------- |
+| **Framework**     | Next.js 15.5 (App Router, Turbopack dev), React 19 with the React Compiler, TypeScript |
+| **Editor**        | Lexical 0.35 + `@liveblocks/react-lexical`, custom nodes and plugins                   |
+| **Pagination**    | `@platen/engine` float-rail paged layout (default view), plus continuous and pageless  |
+| **Collaboration** | Liveblocks 3 (rooms, live cursors, comments, notifications, share modal)               |
+| **Auth**          | Clerk 7                                                                                |
+| **Styling**       | Tailwind CSS v4 (CSS-first tokens in `app/globals.css`), shadcn/Radix primitives       |
+| **Monitoring**    | Sentry                                                                                 |
+| **Tooling**       | ESLint, Prettier, Husky, lint-staged, commitlint, GitHub Actions CI, Gitleaks          |
+| **Releases**      | Release Please on `master`, Vercel preview and production deployments                  |
+| **Data**          | Liveblocks rooms only — no application database yet (Phase 3)                          |
 
 ---
 

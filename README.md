@@ -11,11 +11,12 @@ A modern, real-time collaborative rich-text document editor built with Next.js, 
 
 ## Tech Stack
 
-- **Framework:** [Next.js 15](https://nextjs.org/) (App Router)
-- **UI & Components:** React 18, Radix UI, Tailwind CSS
-- **Rich-Text Engine:** [Lexical](https://lexical.dev/)
-- **Real-Time Collaboration:** [Liveblocks](https://liveblocks.io/) (presence, live cursors, comments)
-- **Authentication:** [Clerk](https://clerk.com/)
+- **Framework:** [Next.js 15](https://nextjs.org/) (App Router, Turbopack, React Compiler)
+- **UI & Components:** React 19, Radix UI, Tailwind CSS v4
+- **Rich-Text Engine:** [Lexical](https://lexical.dev/) 0.35
+- **Pagination:** [`@platen/engine`](https://www.npmjs.com/package/@platen/engine) (multi-page layout with page breaks between lines)
+- **Real-Time Collaboration:** [Liveblocks](https://liveblocks.io/) 3 (presence, live cursors, comments)
+- **Authentication:** [Clerk](https://clerk.com/) 7
 - **Monitoring:** [Sentry](https://sentry.io/)
 - **Code Quality & CI/CD:** ESLint, Prettier, Husky, commitlint, Gitleaks, GitHub Actions, Release Please
 
@@ -57,7 +58,7 @@ A modern, real-time collaborative rich-text document editor built with Next.js, 
    npm run dev
    ```
 
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+   Open [http://localhost:3002](http://localhost:3002) in your browser.
 
 ---
 
@@ -65,7 +66,7 @@ A modern, real-time collaborative rich-text document editor built with Next.js, 
 
 | Command                      | Description                                     |
 | :--------------------------- | :---------------------------------------------- |
-| `npm run dev`                | Start development server at `localhost:3000`    |
+| `npm run dev`                | Start development server at `localhost:3002`    |
 | `npm run build`              | Compile optimized production build              |
 | `npm run start`              | Start production server                         |
 | `npm run lint`               | Run Next.js ESLint checks                       |
@@ -83,7 +84,7 @@ A modern, real-time collaborative rich-text document editor built with Next.js, 
 
 - **Roadmap:** Review our multi-phase roadmap in [`docs/plans/README.md`](./docs/plans/README.md).
 - **Contributing Guidelines:** Read commit conventions and workflow rules in [`docs/CONTRIBUTING.md`](./docs/CONTRIBUTING.md).
-- **Agent Instructions:** Guidelines for AI agents working in this repository are in [`AGENTS.md`](./AGENTS.md).
+- **Agent Instructions:** Guidelines for AI agents working in this repository are in [`AGENTS.md`](./AGENTS.md) and [`CLAUDE.md`](./CLAUDE.md).
 
 ---
 

@@ -12,7 +12,7 @@ cp .env.example .env.local   # fill in values (when .env.example exists)
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3002](http://localhost:3002).
 
 ## Branch strategy
 
@@ -41,7 +41,7 @@ master  ← production-ready releases
 | `npm run security:outdated`  | Check for outdated package versions        |
 | `npm run reset`              | Clean reinstall of modules and lockfile    |
 
-> **Note on Security Audits:** During Phase 0, `security:audit` runs in warning/informational mode while tooling is stabilized. In Phase 1.1 (after dependency upgrades), strict blocking mode will be re-enabled in both `package.json` and `.github/workflows/ci.yml`.
+> **Note on Security Audits:** `security:audit` is blocking: high-severity advisories fail the pre-push hook and the CI security job.
 
 ## Commit conventions
 
@@ -227,6 +227,7 @@ Development roadmap plans live in [`docs/plans/`](./plans/README.md). Check the 
 Agents working in this repo must follow:
 
 - [`AGENTS.md`](../AGENTS.md)
+- [`CLAUDE.md`](../CLAUDE.md)
 - [`.cursor/rules/git-and-pr-conventions.mdc`](../.cursor/rules/git-and-pr-conventions.mdc)
 
 Agents may commit when the user asks. Present the commit message for approval first, then run `git commit`. Do not push unless the user explicitly requests it. Never add `Co-authored-by` or other commit trailers.
