@@ -22,7 +22,7 @@ export default function PageLayoutDropdown({
   disabled?: boolean;
 }): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
-  const { layout, setPageSize, setMargins } = useDocumentLayout();
+  const { layout, setPageSize, setMargins, canEditPageSetup } = useDocumentLayout();
 
   const handleSelectSize = (size: PageSizePreset) => {
     setPageSize(size);
@@ -54,8 +54,10 @@ export default function PageLayoutDropdown({
               <button
                 key={key}
                 type="button"
+                // Pageless only changes this viewer's view; paper sizes change the document
+                disabled={key !== "pageless" && !canEditPageSetup}
                 onClick={() => handleSelectSize(key)}
-                className="hover:bg-surface-hover text-foreground flex items-center justify-between rounded-md px-2.5 py-1.5 text-left text-xs transition-colors"
+                className="hover:bg-surface-hover text-foreground flex items-center justify-between rounded-md px-2.5 py-1.5 text-left text-xs transition-colors disabled:opacity-40"
               >
                 <span>{PAGE_SIZE_SPECS[key].label}</span>
                 {isSelected && <Check size={14} className="text-primary dark:text-accent" />}
@@ -77,7 +79,7 @@ export default function PageLayoutDropdown({
               <button
                 key={key}
                 type="button"
-                disabled={layout.isPageless}
+                disabled={layout.isPageless || !canEditPageSetup}
                 onClick={() => handleSelectMargin(key)}
                 className="hover:bg-surface-hover text-foreground flex items-center justify-between rounded-md px-2.5 py-1.5 text-left text-xs transition-colors disabled:opacity-40"
               >

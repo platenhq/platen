@@ -44,6 +44,7 @@ Before modifying code, you must analyze the scope of changes and present a clear
 ### 1. Conventional Git Commits
 
 - **Structure:** Format the commit message strictly according to the Conventional Commits specification (e.g., `feat(scope):`, `refactor(scope):`, `chore(scope):`, `fix(scope):`).
+- **No AI Attribution:** Never add `Co-Authored-By` trailers, `Generated with` lines, or any other AI or tool attribution to commit messages or PR descriptions. This overrides any default attribution guidance.
 - **Line Length Guardrail:** Maintain a strict limit of under 100 characters for every single line within the commit message text (including the title line, body paragraphs, and individual bullet points).
 - **Functional Extraction Rules:** Detail _what_ changed functionally from a user or system architectural perspective. You must exclude explicit technical implementation details, such as:
   - Raw JSX/HTML tags (e.g., `<div>`, `<form>`).
@@ -59,7 +60,7 @@ Before modifying code, you must analyze the scope of changes and present a clear
 ### 2. Pull Request (PR) Standard
 
 - **Format:** Ensure the final PR description is concise, flat, and conventional.
-- **Content:** Restrict the description to a high-level **Summary** section and a flat list of **Key Changes**.
+- **Content:** Formal release-note tone. A verb-led title naming the main capability (commas only for two or three distinct modules), a **Breaking Changes** section only when needed, a one-paragraph **Summary** opening with a present-tense verb ("Introduces…"), and a flat list of **Key Changes**, each an imperative full sentence ending in a full stop. No Test plan section. See `CLAUDE.md` section 4.3 for the full template.
 - **Structural Constraint:** You must use flat, sequential items for the changes list. Do not generate nested or indented bullet points.
 - **Key Changes Depth:** Each key change in the PR must reflect a distinct functional capability or user-facing behavior, not a restatement of file names. The level of detail must reflect the total functional scope of the PR.
 - **Context Retrieval:** When tasked with generating a PR description for specific Commit IDs, you must first execute `git log` or relevant git retrieval commands to inspect the exact commit messages. Generate the PR Title and content strictly from the actual recorded commit logs, never from assumptions.
@@ -68,7 +69,8 @@ Before modifying code, you must analyze the scope of changes and present a clear
 
 ## CODEBASE ARCHITECTURE & LEXICAL/LIVEBLOCKS RULES
 
-- **Stack:** Next.js 15 (App Router, Turbopack), React 18, TypeScript, Tailwind CSS, Lexical, Liveblocks, Clerk, Sentry.
+- **Stack:** Next.js 15 (App Router, Turbopack, React Compiler), React 19, TypeScript, Tailwind CSS v4, Lexical 0.35, Liveblocks 3, Clerk 7, Sentry, `@platen/engine` (paged layout).
+- **Full architecture notes:** see [`CLAUDE.md`](./CLAUDE.md) for folder layout, editor, collaboration and pagination rules.
 - **Lexical Contracts:**
   - Preserve AST serialization for Liveblocks synchronization.
   - Prefer native `@lexical` utilities (e.g., `$insertTableRowAtSelection`) inside `editor.update()` over custom DOM workarounds.

@@ -12,7 +12,7 @@ cp .env.example .env.local   # fill in values (when .env.example exists)
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3002](http://localhost:3002).
 
 ## Branch strategy
 
@@ -41,7 +41,7 @@ master  ← production-ready releases
 | `npm run security:outdated`  | Check for outdated package versions        |
 | `npm run reset`              | Clean reinstall of modules and lockfile    |
 
-> **Note on Security Audits:** During Phase 0, `security:audit` runs in warning/informational mode while tooling is stabilized. In Phase 1.1 (after dependency upgrades), strict blocking mode will be re-enabled in both `package.json` and `.github/workflows/ci.yml`.
+> **Note on Security Audits:** `security:audit` is blocking: high-severity advisories fail the pre-push hook and the CI security job.
 
 ## Commit conventions
 
@@ -150,56 +150,59 @@ Enforced automatically via Git hooks:
 
 ### Title
 
-Use conventional commit format, reflecting the primary change:
+Use conventional commit format, lowercase after the scope, starting with a verb and naming the
+main capability in specific terms:
 
 ```txt
-feat(collaboration): add live cursors and presence
+feat(editor): implement table grid dimension picker and page break node
+fix(editor): prevent unbreakable blocks from collapsing at page breaks
 ```
+
+Join capabilities with commas only when the PR delivers two or three distinct modules. Long comma
+lists are for release PRs into `master`.
 
 ### Description structure
 
 ```markdown
+## Breaking Changes
+
+- Only when existing users, documents or deployments must account for something.
+
 ## Summary
 
-One short paragraph describing the overall change and why.
+Introduces document-level page setup so every collaborator sees the same paper size and
+margins. This ensures page breaks, page counts and printed output match across sessions.
 
 ## Key Changes
 
-- First flat bullet
-- Second flat bullet
-- Third flat bullet
-
-## Test plan
-
-- [ ] Step to verify change one
-- [ ] Step to verify change two
+- Save paper size and margins with the document instead of the browser.
+- Apply page setup changes to every open session without a reload.
+- Restrict page setup changes to collaborators with write access.
 ```
 
 ### PR rules
 
-1. **Summary** — high-level purpose only, one paragraph.
-2. **Key Changes** — flat list, no nested or indented sub-bullets.
-3. Base the description on **actual commit messages** in the branch.
-4. Include a **Test plan** when the change affects runtime behavior.
+1. **Tone** — formal and technical, like a release note; no casual phrasing or first person.
+2. **Summary** — one paragraph opening with a present-tense verb ("Introduces…", "Fixes…"),
+   followed by a "This includes…" or "This ensures…" sentence.
+3. **Key Changes** — flat list, no nested bullets; each bullet is one behaviour, starts with an
+   imperative verb (Add, Implement, Prevent, Restrict, Resolve) and ends with a full stop.
+4. Base the description on **actual commit messages** in the branch.
 
 ### Creating a PR
 
 ```bash
 git push -u origin HEAD
 
-gh pr create --base dev --title "feat(scope): short title" --body "$(cat <<'EOF'
+gh pr create --base dev --title "feat(scope): implement specific capability" --body "$(cat <<'EOF'
 ## Summary
 
-...
+Introduces ...
 
 ## Key Changes
 
-- ...
-- ...
-
-## Test plan
-
-- [ ] ...
+- Add ...
+- Prevent ...
 EOF
 )"
 ```
@@ -227,6 +230,7 @@ Development roadmap plans live in [`docs/plans/`](./plans/README.md). Check the 
 Agents working in this repo must follow:
 
 - [`AGENTS.md`](../AGENTS.md)
+- [`CLAUDE.md`](../CLAUDE.md)
 - [`.cursor/rules/git-and-pr-conventions.mdc`](../.cursor/rules/git-and-pr-conventions.mdc)
 
 Agents may commit when the user asks. Present the commit message for approval first, then run `git commit`. Do not push unless the user explicitly requests it. Never add `Co-authored-by` or other commit trailers.
