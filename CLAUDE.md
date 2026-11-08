@@ -34,9 +34,11 @@
 - **Auth**: Clerk 7 (`middleware.ts`, `<ClerkProvider>` in `app/layout.tsx`).
 - **Monitoring**: Sentry (`instrumentation*.ts`, `sentry.*.config.ts`), reduced in development.
 - **Page layout**: `context/DocumentLayoutContext.tsx` owns the view mode, page size, margins
-  and zoom. View modes: `paged-engine` (default, labelled "Pages"), `pages` (labelled
-  "Continuous (legacy)") and `pageless`. Settings are saved per browser in `localStorage`;
-  they are not synced to collaborators.
+  and zoom. Paper size and margins belong to the document: they live in Liveblocks Storage
+  (`pageSetup`), sync live to every collaborator, and only users with write access can change
+  them. View mode and zoom are each viewer's own, saved in `localStorage`. View modes:
+  `paged-engine` (default, labelled "Pages"), `pages` (labelled "Continuous (legacy)") and
+  `pageless`. Pageless is a view only; it never changes the document's paper size.
 - **Pagination**: `@platen/engine` from npm, developed in the sibling repo `../paged-engine`.
   Read its `README.md` and `ARCHITECTURE.md` before changing paged layout or print.
   `components/editor/PlatenEngineCanvas.tsx` wraps the editor in `PagedDocument`.

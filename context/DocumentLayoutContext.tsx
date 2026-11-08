@@ -1,11 +1,26 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { LiveObject } from "@liveblocks/client";
+import { useMutation, useSelf, useStorage } from "@liveblocks/react/suspense";
 
 export type DocumentViewMode = "pages" | "pageless" | "paged-engine";
-export type PageSizePreset = "letter" | "a4" | "legal" | "pageless";
+export type PaperSize = "letter" | "a4" | "legal";
+// "pageless" is a view, not a paper size; it is listed here for the page layout menu
+export type PageSizePreset = PaperSize | "pageless";
 export type MarginPreset = "normal" | "narrow" | "moderate" | "wide";
 export type ZoomPreset = "fit" | 50 | 75 | 90 | 100 | 125 | 150 | 200;
+
+/**
+ * Page setup stored with the document and shared with every collaborator. A type alias, not an
+ * interface, so it satisfies Liveblocks' storage constraint.
+ */
+export type PageSetup = {
+  pageSize: PaperSize;
+  margins: MarginPreset;
+};
+
+export const DEFAULT_PAGE_SETUP: PageSetup = { pageSize: "letter", margins: "normal" };
 
 export interface PageLayoutConfig {
   pageSize: PageSizePreset;
@@ -58,6 +73,8 @@ interface DocumentLayoutContextValue {
   setMargins: (margin: MarginPreset) => void;
   setZoom: (zoom: ZoomPreset) => void;
   setViewMode: (mode: DocumentViewMode) => void;
+  /** Whether the current user may change the document's paper size and margins. */
+  canEditPageSetup: boolean;
   enginePageCount: number;
   setEnginePageCount: (count: number) => void;
 }
@@ -66,23 +83,29 @@ const DocumentLayoutContext = createContext<DocumentLayoutContextValue | undefin
 
 export function DocumentLayoutProvider({
   children,
-  initialPageSize = "letter",
-  initialMargins = "normal",
   initialZoom = 100,
 }: {
   children: React.ReactNode;
-  initialPageSize?: PageSizePreset;
-  initialMargins?: MarginPreset;
   initialZoom?: ZoomPreset;
 }): React.JSX.Element {
   const STORAGE_KEY = "platen_document_layout_prefs";
 
-  const [pageSize, setPageSizeState] = useState<PageSizePreset>(initialPageSize);
-  const [viewMode, setViewModeState] = useState<DocumentViewMode>(() =>
-    initialPageSize === "pageless" ? "pageless" : "paged-engine",
-  );
+  // Paper size and margins come from the document. A read-only viewer cannot add a missing
+  // setup to an older document, so fall back to the default until an editor opens it.
+  const pageSetup = useStorage((root) => root.pageSetup) ?? DEFAULT_PAGE_SETUP;
+  const canEditPageSetup = useSelf((me) => me.canWrite);
+  const updatePageSetup = useMutation(({ storage }, changes: Partial<PageSetup>) => {
+    const current = storage.get("pageSetup");
+    if (current) {
+      current.update(changes);
+    } else {
+      storage.set("pageSetup", new LiveObject({ ...DEFAULT_PAGE_SETUP, ...changes }));
+    }
+  }, []);
+
+  // View mode and zoom are each viewer's own preference
+  const [viewMode, setViewModeState] = useState<DocumentViewMode>("paged-engine");
   const [enginePageCount, setEnginePageCount] = useState<number>(1);
-  const [margins, setMarginsState] = useState<MarginPreset>(initialMargins);
   const [zoom, setZoomState] = useState<ZoomPreset>(initialZoom);
   const [viewportWidth, setViewportWidth] = useState<number>(() =>
     typeof window !== "undefined" ? window.innerWidth : 1200,
@@ -103,8 +126,7 @@ export function DocumentLayoutProvider({
             setViewModeState(parsed.viewMode);
           }
         }
-        if (parsed.pageSize) setPageSizeState(parsed.pageSize);
-        if (parsed.margins) setMarginsState(parsed.margins);
+        // Page size and margins saved before version 3 are ignored: they now belong to the document
         if (parsed.zoom !== undefined) setZoomState(parsed.zoom);
       }
     } catch {
@@ -112,24 +134,22 @@ export function DocumentLayoutProvider({
     }
   }, []);
 
-  // Save preferences to localStorage whenever they change (version 2)
+  // Save preferences to localStorage whenever they change (version 3)
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
       localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({
-          version: 2,
+          version: 3,
           viewMode,
-          pageSize,
-          margins,
           zoom,
         }),
       );
     } catch {
       // Ignore quota errors
     }
-  }, [viewMode, pageSize, margins, zoom]);
+  }, [viewMode, zoom]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -143,30 +163,29 @@ export function DocumentLayoutProvider({
   }, []);
 
   const setPageSize = (size: PageSizePreset) => {
-    setPageSizeState(size);
     if (size === "pageless") {
       setViewModeState("pageless");
-    } else if (viewMode === "pageless") {
-      setViewModeState("paged-engine");
+      return;
     }
+    if (canEditPageSetup) updatePageSetup({ pageSize: size });
+    if (viewMode === "pageless") setViewModeState("paged-engine");
   };
 
   const setViewMode = (mode: DocumentViewMode) => {
     setViewModeState(mode);
-    if (mode === "pageless") {
-      setPageSizeState("pageless");
-    } else if (pageSize === "pageless") {
-      setPageSizeState("letter");
-    }
   };
 
   const setMargins = (m: MarginPreset) => {
-    setMarginsState(m);
+    if (canEditPageSetup) updatePageSetup({ margins: m });
   };
 
   const setZoom = (z: ZoomPreset) => {
     setZoomState(z);
   };
+
+  const { margins } = pageSetup;
+  // The page layout menu shows Pageless as the active size while the viewer is in that view
+  const pageSize: PageSizePreset = viewMode === "pageless" ? "pageless" : pageSetup.pageSize;
 
   const zoomFactor = useMemo<number>(() => {
     if (typeof zoom === "number") {
@@ -227,6 +246,7 @@ export function DocumentLayoutProvider({
         setMargins,
         setZoom,
         setViewMode,
+        canEditPageSetup,
         enginePageCount,
         setEnginePageCount,
       }}

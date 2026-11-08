@@ -1,3 +1,6 @@
+import type { LiveObject } from "@liveblocks/client";
+import type { PageSetup } from "@/context/DocumentLayoutContext";
+
 // Define Liveblocks types for your application
 // https://liveblocks.io/docs/api-reference/liveblocks-react#Typing-your-data
 declare global {
@@ -8,7 +11,10 @@ declare global {
     };
 
     // The Storage tree for the room, for useMutation, useStorage, etc.
-    Storage: Record<string, never>;
+    Storage: {
+      // Paper size and margins belong to the document, so every collaborator sees the same pages
+      pageSetup: LiveObject<PageSetup>;
+    };
 
     // Custom user info set when authenticating with a secret key
     UserMeta: {

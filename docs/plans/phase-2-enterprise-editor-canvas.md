@@ -222,9 +222,14 @@ Line & paragraph spacing
 | A4 (8.27×11.69") | `794px`        | `1123px`                | Moderate (0.75") | `72px`             | `72px`             |
 | Legal (8.5×14")  | `816px`        | `1344px`                | Wide (1.5")      | `144px`            | `96px`             |
 
-Page settings (view mode, page size, margins, zoom) are stored per browser in `localStorage`
-by `context/DocumentLayoutContext.tsx`. They are a viewing preference and are not synced to
-collaborators. New documents open in the paged view ("Pages", powered by `@platen/engine`).
+Paper size and margins belong to the document, as in Google Docs and Word. They are stored in
+Liveblocks Storage (`pageSetup`), sync live to every collaborator so everyone sees the same page
+breaks and prints the same pages, and can only be changed by users with write access. Documents
+without a stored setup start at Letter with Normal margins.
+
+View mode and zoom are each viewer's own preference, stored in `localStorage`. Pageless is a
+view: switching to it and back keeps the document's paper size. New documents open in the paged
+view ("Pages", powered by `@platen/engine`).
 
 ### Checklist for toolbar expansion
 
@@ -235,7 +240,8 @@ collaborators. New documents open in the paged view ("Pages", powered by `@plate
 - [x] Add `ChecklistButton`, `BulletedListDropdown` (with style grid), `NumberedListDropdown` (with style grid), and Indent/Outdent controls
 - [x] Build `FormatDropdown` with Strikethrough, Superscript, Subscript, and Title Case text transforms
 - [x] Add `ClearFormattingButton` directly to the main toolbar strip (calling `$clearFormatting`)
-- [x] Build `PageLayoutDropdown` to adjust page size (Letter, A4, Pageless) and margin presets via CSS custom properties and Liveblocks metadata
+- [x] Build `PageLayoutDropdown` to adjust page size (Letter, A4, Pageless) and margin presets via CSS custom properties
+- [x] Store paper size and margins with the document in Liveblocks Storage, synced live and editable only with write access
 
 ### Files to modify for toolbar expansion
 

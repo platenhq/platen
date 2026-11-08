@@ -1,7 +1,9 @@
 "use client";
 
+import { LiveObject } from "@liveblocks/client";
 import { RoomProvider, useStatus } from "@liveblocks/react";
 import { ClientSideSuspense } from "@liveblocks/react/suspense";
+import { DEFAULT_PAGE_SETUP } from "@/context/DocumentLayoutContext";
 import { Editor } from "@/components/editor/Editor";
 import Header from "@/components/shared/Header";
 import { Show, SignInButton } from "@clerk/nextjs";
@@ -129,7 +131,12 @@ const CollaborativeRoom = ({
   }, [documentTitle]);
 
   return (
-    <RoomProvider id={roomId} initialPresence={{ cursor: null }}>
+    <RoomProvider
+      id={roomId}
+      initialPresence={{ cursor: null }}
+      // Also fills in the page setup of existing documents the first time an editor opens them
+      initialStorage={() => ({ pageSetup: new LiveObject(DEFAULT_PAGE_SETUP) })}
+    >
       <ClientSideSuspense fallback={<Loader />}>
         <div className="flex size-full flex-1 flex-col items-center overflow-hidden">
           <Header>
