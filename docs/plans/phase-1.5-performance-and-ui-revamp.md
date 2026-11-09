@@ -108,13 +108,22 @@ summed across chunks:
 | `yjs`                                                         |  66 kB |  19 kB | Collaboration; needed                                                         |
 | `prismjs`                                                     |  55 kB |  23 kB | Code block highlighting                                                       |
 
-Recommendations, in order of payoff (not yet applied):
+Recommendations, in order of payoff:
 
-1. Load Sentry Replay lazily after the page is interactive, or drop Replay: about 58 kB gzip.
-2. Load code highlighting (`prismjs`) only when a document contains a code block: about 23 kB
-   gzip.
-3. Load the comment UI (and with it `slate`) only when a document has comments or the user
-   opens the composer: about 40–60 kB gzip, but it touches the comment column.
+- [x] **Load Sentry Replay lazily.** Replay is fetched from Sentry's CDN once the page is idle
+      (production only) instead of shipping in the bundle. Sentry in the client went from
+      510 kB to 309 kB parsed (177 kB to 115 kB gzip); first load shared by all pages went
+      from 203 kB to 164 kB, and `/documents/[id]` from 743 kB to 704 kB. Errors in the first
+      moments after load, before Replay arrives, are reported without a recording.
+- [ ] **Load code highlighting only when needed (blocked).** `@lexical/code` 0.35 imports
+      `prismjs` and its language grammars at module load, and code nodes must be registered
+      when the editor starts. Newer Lexical splits Prism into `@lexical/code-prism`, but
+      `@liveblocks/react-lexical` pins Lexical to exactly 0.35.0. Revisit when Liveblocks
+      supports a newer Lexical.
+- [ ] **Load the comment UI lazily (deferred).** The notifications inbox already loads
+      `@liveblocks/react-ui` on the document page, so the saving may be limited to `slate`
+      (about 42 kB gzip), at the cost of a delay on the first comment interaction. Measure
+      before deciding.
 
 ### Files to modify for lexical bundle optimization
 
