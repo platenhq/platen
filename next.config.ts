@@ -1,5 +1,13 @@
 import { withSentryConfig } from "@sentry/nextjs/config";
+import bundleAnalyzer from "@next/bundle-analyzer";
 import type { NextConfig } from "next";
+
+// Bundle size reports after a production build; run with `npm run analyze`
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+  // Reports are written to .next/analyze/ instead of opening browser tabs
+  openAnalyzer: false,
+});
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -11,7 +19,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withBundleAnalyzer(nextConfig), {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
 
