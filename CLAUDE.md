@@ -57,6 +57,14 @@
     are wrapped in `@media screen`, so print always uses the light colours without changing
     the page. Keep new dark styles screen-only, and hide editor controls inside the document
     with `print:hidden` or a scoped `@media print` rule, never by hiding content.
+- **Sidebars**: the outline (`components/editor/outline/`) overlays the left of the viewport and
+  the comment column (`components/editor/comments/`) sits right of the page in the scrolling
+  content. Neither may resize or move the page. Comment threads render inside
+  `LiveblocksPlugin`, which wraps `EditorShell`. Showing either is a per-viewer preference.
+- **Errors**: `getDocument` / `getDocuments` throw when Liveblocks is unreachable (10s timeout,
+  `withTimeout` in `lib/liveblocks.ts`) and `app/(root)/error.tsx` offers a retry; a missing
+  document or missing access returns null. Read the signed-in user with `getSessionUser()`
+  (`lib/auth/session.ts`), not `currentUser()`.
 - **Data**: Liveblocks rooms only; no application database yet (Postgres is Phase 3).
 - **Checks**: there is no test suite. Verify with `npm run typecheck`, `npm run lint` and
   `npm run format:check`, then in the browser at `localhost:3002`. CI also runs the build and

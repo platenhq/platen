@@ -621,19 +621,22 @@ Liveblocks `FloatingThreads` currently renders comment threads as overlays attac
 
 ### Checklist for comment anchoring
 
-- [ ] Wrap the page canvas and comment column in a flex row container inside `EditorShell`
-- [ ] Position `FloatingThreads` (Liveblocks) inside the comment column (right side), fixed width 320px, anchored to the annotated text's vertical offset
-- [ ] Ensure the comment column collapses to a floating popover on narrow viewports (below `lg` breakpoint)
-- [ ] Add a toggle button in the room header to show/hide the comment column
-- [ ] Verify that clicking a comment thread highlights the corresponding text range in Lexical
+- [x] Place the comment column beside the page inside the scrolling content of `EditorShell`, without moving or resizing the page
+- [x] Render open threads with Liveblocks `AnchoredThreads` in a 320px column, each level with its annotated text across page gaps and zoom levels
+- [x] Fall back to `FloatingThreads` popovers when the space beside the zoomed page cannot hold the column, and in Pageless view
+- [x] Add a "Show comments" toggle to the View menu (the room header sits outside the editor and its layout state)
+- [x] Verify that clicking a comment thread highlights the corresponding text range in Lexical
+- [x] Remove the stand-alone comment composer and thread list rendered below the editor
 
-### Files to modify for comment anchoring
+### Files modified for comment anchoring
 
 ```txt
+components/editor/comments/CommentThreads.tsx   [NEW]
 components/editor/EditorShell.tsx
-components/collaborators/CollaborativeRoom.tsx
-components/ui/shared/Header.tsx
-styles/editor/index.css
+components/editor/Editor.tsx
+components/editor/menubar/menus/ViewMenu.tsx
+context/DocumentLayoutContext.tsx
+components/liveblocks/Comments.tsx              [DELETED]
 ```
 
 ---
@@ -644,21 +647,21 @@ A collapsible left sidebar that reads heading nodes (H1, H2, H3) from the Lexica
 
 ### Checklist for document outline
 
-- [ ] Build an `OutlinePlugin` Lexical plugin that reads the editor state for heading nodes and emits an ordered outline array
-- [ ] Build an `OutlineSidebar` component that renders the outline with indentation levels matching heading depth (H1 / H2 / H3)
-- [ ] Clicking an outline item scrolls the associated heading into view using `scrollIntoView`
-- [ ] The sidebar is collapsible; default state is open on desktop, closed on tablet and mobile
-- [ ] Highlight the active heading in the outline as the user scrolls through the document
-- [ ] The sidebar toggle button lives in the document room header
+- [x] Read top-level H1–H3 headings from the editor state, refreshing only when a heading changes (`useDocumentOutline`, in place of a separate plugin)
+- [x] Build an `OutlineSidebar` component that renders the outline with indentation levels matching heading depth (H1 / H2 / H3)
+- [x] Clicking an outline item scrolls the viewport to the heading, at every zoom level, without moving the caret
+- [x] The sidebar is collapsible; default state is open on desktop, closed on tablet and mobile
+- [x] Highlight the active heading in the outline as the user scrolls through the document
+- [x] Toggle the sidebar from the View menu and from its own buttons (the room header sits outside the editor)
 
-### Files to modify for document outline
+### Files modified for document outline
 
 ```txt
-components/editor/plugins/OutlinePlugin.tsx    [NEW]
-components/editor/OutlineSidebar.tsx           [NEW]
+components/editor/outline/useDocumentOutline.ts  [NEW]
+components/editor/outline/OutlineSidebar.tsx     [NEW]
 components/editor/EditorShell.tsx
-components/editor/Editor.tsx
-components/ui/shared/Header.tsx
+components/editor/menubar/menus/ViewMenu.tsx
+context/DocumentLayoutContext.tsx
 ```
 
 ---
