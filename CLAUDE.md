@@ -69,12 +69,20 @@
   calls `requireRoomAccess(roomId, "write" | "owner")` (`lib/auth/room-access.ts`) first, never
   relying on the UI hiding a control. Editors may rename, share and change roles; only the
   owner may delete; the owner's own access can never be changed or removed.
-- **Dashboard previews**: `DocumentPreviewPlugin` (editors only, local edits only) saves the
-  first heading and opening text to room metadata (`previewHeading`, `preview`; Liveblocks caps
-  metadata values at 256 characters).
+- **Document snapshots**: `DocumentSnapshotPlugin` (editors only, local edits only, 3s idle, at
+  most every 30s, and on leaving the page) calls `saveDocumentSnapshot`, which writes the
+  dashboard preview to room metadata (`previewHeading`, `preview`; Liveblocks caps metadata
+  values at 256 characters) and the full content (editor JSON, text, HTML) to the database.
 - **Bundle size**: `npm run analyze` runs a production build with the bundle analyzer (stop the
   dev server first; both use `.next`).
-- **Data**: Liveblocks rooms only; no application database yet (Postgres is Phase 3).
+- **Data**: Liveblocks holds the live documents. Postgres (Neon, Drizzle ORM, `lib/db/`) holds
+  `users` and one `documents` row per room with the latest content snapshot, for previews,
+  search, exports and history; it never decides access. Database writes go through
+  `lib/db/documents.ts` and are best-effort: a failure is logged and never fails the user's
+  action, and without `DATABASE_URL` they are skipped. Change the schema in `lib/db/schema.ts`,
+  then `npm run db:generate` and `npm run db:migrate` (committed SQL migrations in `drizzle/`;
+  never push schema directly). Local development uses the Neon `dev` branch; production uses
+  the `production` branch.
 - **Checks**: there is no test suite. Verify with `npm run typecheck`, `npm run lint` and
   `npm run format:check`, then in the browser at `localhost:3002`. CI also runs the build and
   `npm run security:audit`.
