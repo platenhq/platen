@@ -12,7 +12,7 @@ import {
   CustomDropdownSubContent,
 } from "@/components/ui/custom/CustomDropdown";
 import { useDocumentLayout, ZOOM_PRESETS } from "@/context/DocumentLayoutContext";
-import { Check, Eye, FileText, Layers, ZoomIn } from "lucide-react";
+import { Check, Eye, FileText, Layers, ListTree, MessageSquare, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ViewMenuProps {
@@ -21,7 +21,15 @@ interface ViewMenuProps {
 
 export const ViewMenu: React.FC<ViewMenuProps> = ({ disabled }) => {
   const [open, setOpen] = useState(false);
-  const { layout, setPageSize, setZoom, setViewMode } = useDocumentLayout();
+  const {
+    layout,
+    setZoom,
+    setViewMode,
+    showOutline,
+    setShowOutline,
+    showComments,
+    setShowComments,
+  } = useDocumentLayout();
 
   return (
     <CustomDropdown open={open} onOpenChange={setOpen}>
@@ -90,6 +98,39 @@ export const ViewMenu: React.FC<ViewMenuProps> = ({ disabled }) => {
           {layout.viewMode === "pageless" && (
             <Check className="size-4 text-emerald-600 dark:text-emerald-400" />
           )}
+        </CustomDropdownItem>
+
+        <CustomDropdownSeparator />
+
+        {/* Sidebars: each viewer's own preference */}
+        <CustomDropdownItem
+          className="px-3 py-2 text-sm"
+          isActive={showOutline}
+          onClick={() => {
+            setShowOutline(!showOutline);
+            setOpen(false);
+          }}
+        >
+          <div className="flex flex-1 items-center gap-3">
+            <ListTree className="text-muted-foreground size-4" />
+            <span>Show outline</span>
+          </div>
+          {showOutline && <Check className="size-4 text-emerald-600 dark:text-emerald-400" />}
+        </CustomDropdownItem>
+
+        <CustomDropdownItem
+          className="px-3 py-2 text-sm"
+          isActive={showComments}
+          onClick={() => {
+            setShowComments(!showComments);
+            setOpen(false);
+          }}
+        >
+          <div className="flex flex-1 items-center gap-3">
+            <MessageSquare className="text-muted-foreground size-4" />
+            <span>Show comments</span>
+          </div>
+          {showComments && <Check className="size-4 text-emerald-600 dark:text-emerald-400" />}
         </CustomDropdownItem>
 
         <CustomDropdownSeparator />

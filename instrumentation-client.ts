@@ -7,6 +7,8 @@ import * as Sentry from "@sentry/nextjs";
 const isProduction = process.env.NODE_ENV === "production";
 
 Sentry.init({
+  // Development errors (often local network blips) never reach production alerts
+  enabled: isProduction,
   dsn: "https://4d6d7b1a01fd012f688f8a51ff6dc0b4@o4508349405134848.ingest.de.sentry.io/4508349413195856",
 
   // Only enable heavy replay integration in production to optimize local dev performance

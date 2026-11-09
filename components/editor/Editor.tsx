@@ -27,7 +27,6 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { TablePlugin } from "@lexical/react/LexicalTablePlugin";
 import {
   FloatingComposer,
-  FloatingThreads,
   liveblocksConfig,
   LiveblocksPlugin,
   useIsEditorReady,
@@ -35,8 +34,6 @@ import {
 
 import Loader from "@/components/shared/Loader";
 import FloatingToolbarPlugin from "./plugins/FloatingToolbarPlugin";
-import { useThreads } from "@liveblocks/react/suspense";
-import Comments from "@/components/liveblocks/Comments";
 import { useEffect, useMemo, useState } from "react";
 import { ToolbarContext } from "@/context/ToolbarContext";
 import { DocumentLayoutProvider } from "@/context/DocumentLayoutContext";
@@ -75,7 +72,6 @@ export function Editor({ roomId, currentUserType }: Editorprops) {
   } = useSettings();
 
   const ready = useIsEditorReady();
-  const { threads } = useThreads();
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
 
   const [floatingAnchorElem, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
@@ -114,58 +110,54 @@ export function Editor({ roomId, currentUserType }: Editorprops) {
               <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
             </div>
 
-            <EditorShell ready={ready}>
-              <div className="relative min-h-full">
-                <RichTextPlugin
-                  contentEditable={
-                    <div className="editor relative min-h-full" ref={onRef}>
-                      <ContentEditable className="editor-input text-foreground relative min-h-175 caret-current outline-none" />
-                    </div>
-                  }
-                  placeholder={
-                    <div className="editor-placeholder text-muted pointer-events-none absolute top-0 left-0 inline-block text-sm select-none">
-                      Enter some rich text...
-                    </div>
-                  }
-                  ErrorBoundary={LexicalErrorBoundary}
-                />
-                {currentUserType === "editor" && <FloatingToolbarPlugin />}
-                <AutoFocusPlugin />
-                <EditorSanitizerPlugin />
-                <ListPlugin />
-                <CheckListPlugin />
-                <CodeHighlightPlugin />
-                <TablePlugin />
-                <TableEscapePlugin />
-                <TableCellResizerPlugin />
-                <HorizontalRulePlugin />
-                <PageBreakPlugin />
-                <CalloutPlugin />
-                <MediaEmbedPlugin />
-                <ImagesPlugin />
-                {floatingAnchorElem && !isSmallWidthViewport && (
-                  <>
-                    <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
-                    <FloatingLinkEditorPlugin
-                      anchorElem={floatingAnchorElem}
-                      isLinkEditMode={isLinkEditMode}
-                      setIsLinkEditMode={setIsLinkEditMode}
-                    />
-                    <TableCellActionMenuPlugin anchorElem={floatingAnchorElem} />
-                  </>
-                )}
-                <LinkPlugin hasLinkAttributes={hasLinkAttributes} />
-              </div>
-            </EditorShell>
-
-            {/* Liveblocks floating UI — rendered outside the page canvas layer */}
+            {/* Wraps the shell so the comment column beside the page can read thread anchors */}
             <LiveblocksPlugin>
+              <EditorShell ready={ready}>
+                <div className="relative min-h-full">
+                  <RichTextPlugin
+                    contentEditable={
+                      <div className="editor relative min-h-full" ref={onRef}>
+                        <ContentEditable className="editor-input text-foreground relative min-h-175 caret-current outline-none" />
+                      </div>
+                    }
+                    placeholder={
+                      <div className="editor-placeholder text-muted pointer-events-none absolute top-0 left-0 inline-block text-sm select-none">
+                        Enter some rich text...
+                      </div>
+                    }
+                    ErrorBoundary={LexicalErrorBoundary}
+                  />
+                  {currentUserType === "editor" && <FloatingToolbarPlugin />}
+                  <AutoFocusPlugin />
+                  <EditorSanitizerPlugin />
+                  <ListPlugin />
+                  <CheckListPlugin />
+                  <CodeHighlightPlugin />
+                  <TablePlugin />
+                  <TableEscapePlugin />
+                  <TableCellResizerPlugin />
+                  <HorizontalRulePlugin />
+                  <PageBreakPlugin />
+                  <CalloutPlugin />
+                  <MediaEmbedPlugin />
+                  <ImagesPlugin />
+                  {floatingAnchorElem && !isSmallWidthViewport && (
+                    <>
+                      <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
+                      <FloatingLinkEditorPlugin
+                        anchorElem={floatingAnchorElem}
+                        isLinkEditMode={isLinkEditMode}
+                        setIsLinkEditMode={setIsLinkEditMode}
+                      />
+                      <TableCellActionMenuPlugin anchorElem={floatingAnchorElem} />
+                    </>
+                  )}
+                  <LinkPlugin hasLinkAttributes={hasLinkAttributes} />
+                </div>
+              </EditorShell>
+
+              {/* New-comment composer; threads render beside the page from the shell */}
               <FloatingComposer className="border-border bg-surface w-87.5 overflow-hidden rounded-xl border shadow-2xl" />
-              <FloatingThreads
-                threads={threads}
-                className="border-border bg-surface rounded-xl border shadow-2xl"
-              />
-              <Comments />
             </LiveblocksPlugin>
           </div>
         </ToolbarContext>

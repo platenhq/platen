@@ -61,7 +61,7 @@ const CustomDropdownItem = React.forwardRef<
   <DropdownMenuItem
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors outline-none focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none data-disabled:pointer-events-none data-disabled:opacity-40 [&_svg]:size-3.5 [&_svg]:shrink-0",
+      "relative mb-0.5 flex cursor-pointer items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors outline-none last:mb-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none data-disabled:pointer-events-none data-disabled:opacity-40 [&_svg]:size-3.5 [&_svg]:shrink-0",
       isActive
         ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-accent font-medium"
         : "text-foreground hover:bg-surface-hover focus:bg-surface-hover",
@@ -79,7 +79,7 @@ const CustomDropdownSubTrigger = React.forwardRef<
   <DropdownMenuSubTrigger
     ref={ref}
     className={cn(
-      "hover:bg-surface-hover focus:bg-surface-hover text-foreground data-[state=open]:bg-surface-hover flex cursor-pointer items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors outline-none select-none focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none [&_svg]:size-3.5 [&_svg]:shrink-0",
+      "hover:bg-surface-hover focus:bg-surface-hover text-foreground data-[state=open]:bg-surface-hover mb-0.5 flex cursor-pointer items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors outline-none select-none last:mb-0 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none [&_svg]:size-3.5 [&_svg]:shrink-0",
       className,
     )}
     {...props}

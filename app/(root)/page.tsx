@@ -1,6 +1,6 @@
 import React from "react";
 import { getDocuments } from "@/lib/actions/room.actions";
-import { currentUser } from "@clerk/nextjs/server";
+import { getSessionUser } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { RoomData } from "@liveblocks/node";
 import HomeDashboard from "@/components/home/HomeDashboard";
@@ -10,22 +10,17 @@ type RoomDocumentsProps = {
 };
 
 const Home = async () => {
-  const clerkUser = await currentUser();
+  const user = await getSessionUser();
 
-  if (!clerkUser) {
+  if (!user) {
     redirect("/sign-in");
   }
 
-  const roomDocuments: RoomDocumentsProps = await getDocuments(
-    clerkUser.emailAddresses[0].emailAddress,
-  );
+  // Throws when Liveblocks is unreachable; the route's error screen offers a retry
+  const roomDocuments: RoomDocumentsProps = await getDocuments(user.email);
 
   return (
-    <HomeDashboard
-      userId={clerkUser.id}
-      email={clerkUser.emailAddresses[0].emailAddress}
-      roomDocuments={roomDocuments?.data || []}
-    />
+    <HomeDashboard userId={user.id} email={user.email} roomDocuments={roomDocuments?.data || []} />
   );
 };
 

@@ -75,6 +75,11 @@ interface DocumentLayoutContextValue {
   setViewMode: (mode: DocumentViewMode) => void;
   /** Whether the current user may change the document's paper size and margins. */
   canEditPageSetup: boolean;
+  /** Each viewer's own sidebar preferences, saved with view mode and zoom. */
+  showOutline: boolean;
+  setShowOutline: (show: boolean) => void;
+  showComments: boolean;
+  setShowComments: (show: boolean) => void;
   enginePageCount: number;
   setEnginePageCount: (count: number) => void;
 }
@@ -103,10 +108,12 @@ export function DocumentLayoutProvider({
     }
   }, []);
 
-  // View mode and zoom are each viewer's own preference
+  // View mode, zoom and sidebars are each viewer's own preference
   const [viewMode, setViewModeState] = useState<DocumentViewMode>("paged-engine");
   const [enginePageCount, setEnginePageCount] = useState<number>(1);
   const [zoom, setZoomState] = useState<ZoomPreset>(initialZoom);
+  const [showOutline, setShowOutline] = useState<boolean>(false);
+  const [showComments, setShowComments] = useState<boolean>(true);
   const [viewportWidth, setViewportWidth] = useState<number>(() =>
     typeof window !== "undefined" ? window.innerWidth : 1200,
   );
@@ -116,8 +123,15 @@ export function DocumentLayoutProvider({
     if (typeof window === "undefined") return;
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
+      const parsed = saved ? JSON.parse(saved) : {};
+      // The outline starts open on wide screens until the viewer chooses otherwise
+      setShowOutline(
+        typeof parsed.showOutline === "boolean"
+          ? parsed.showOutline
+          : window.matchMedia("(min-width: 1024px)").matches,
+      );
+      if (typeof parsed.showComments === "boolean") setShowComments(parsed.showComments);
       if (saved) {
-        const parsed = JSON.parse(saved);
         if (parsed.viewMode) {
           // Version 2 migration: if saved has no version or version < 2, upgrade legacy "pages" to "paged-engine"
           if ((!parsed.version || parsed.version < 2) && parsed.viewMode === "pages") {
@@ -144,12 +158,14 @@ export function DocumentLayoutProvider({
           version: 3,
           viewMode,
           zoom,
+          showOutline,
+          showComments,
         }),
       );
     } catch {
       // Ignore quota errors
     }
-  }, [viewMode, zoom]);
+  }, [viewMode, zoom, showOutline, showComments]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -247,6 +263,10 @@ export function DocumentLayoutProvider({
         setZoom,
         setViewMode,
         canEditPageSetup,
+        showOutline,
+        setShowOutline,
+        showComments,
+        setShowComments,
         enginePageCount,
         setEnginePageCount,
       }}

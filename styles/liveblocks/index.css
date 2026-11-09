@@ -5,7 +5,10 @@
   --lb-radius: 6px;
 }
 
-.lb-comment-content {
+/* Boxed comment text with even padding. Liveblocks indents comment text past the avatar to line
+   it up with the author name, which inside a box reads as lopsided padding; the extra class
+   outranks that indent. */
+.lb-comment .lb-comment-content {
   margin-top: 16px;
   padding: 12px;
   border-radius: 4px;

@@ -1,7 +1,8 @@
 "use server";
 
 import { nanoid } from "nanoid";
-import { liveblocks } from "@/lib/liveblocks";
+import { LiveblocksError } from "@liveblocks/node";
+import { liveblocks, withTimeout } from "@/lib/liveblocks";
 import { revalidatePath } from "next/cache";
 import { getAccessType } from "@/lib/utils";
 import { redirect } from "next/navigation";
@@ -34,19 +35,24 @@ export const createDoc = async ({ userId, email }: CreateDocumentParams) => {
   }
 };
 
+/**
+ * Returns the room, or null when it does not exist or the user has no access. Throws when
+ * Liveblocks cannot be reached, so the page shows a retryable error instead of redirecting.
+ */
 export const getDocument = async ({ roomId, userId }: { roomId: string; userId: string }) => {
+  let room;
   try {
-    const room = await liveblocks.getRoom(roomId);
-
-    const hasAccess = Object.keys(room.usersAccesses).includes(userId);
-    if (!hasAccess) {
-      throw new Error("You do not have access to this document");
-    }
-
-    return JSON.parse(JSON.stringify(room));
+    room = await withTimeout(liveblocks.getRoom(roomId));
   } catch (error) {
-    console.log(`Error getting document room: ${error}`);
+    if (error instanceof LiveblocksError && error.status === 404) return null;
+    console.error(`Error getting document room: ${error}`);
+    throw error;
   }
+
+  const hasAccess = Object.keys(room.usersAccesses).includes(userId);
+  if (!hasAccess) return null;
+
+  return JSON.parse(JSON.stringify(room));
 };
 
 export const updateDocument = async (roomId: string, title: string) => {
@@ -63,13 +69,17 @@ export const updateDocument = async (roomId: string, title: string) => {
   }
 };
 
+/**
+ * Throws when Liveblocks cannot be reached, so the dashboard shows a retryable error instead of
+ * an empty document list that looks like the documents are gone.
+ */
 export const getDocuments = async (email: string) => {
   try {
-    const rooms = await liveblocks.getRooms({ userId: email });
+    const rooms = await withTimeout(liveblocks.getRooms({ userId: email }));
     return JSON.parse(JSON.stringify(rooms));
   } catch (error) {
-    console.log(`Error getting document rooms: ${error}`);
-    return { data: [] };
+    console.error(`Error getting document rooms: ${error}`);
+    throw error;
   }
 };
 

@@ -2,21 +2,23 @@ import DocumentClient from "@/components/shared/DocumentClient";
 import Loader from "@/components/shared/Loader";
 import { getDocument } from "@/lib/actions/room.actions";
 import { getClerkUsers } from "@/lib/actions/user.actions";
-import { currentUser } from "@clerk/nextjs/server";
+import { getSessionUser } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 const Document = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
 
-  const clerkUser = await currentUser();
-  if (!clerkUser) {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) {
     redirect("/sign-in");
   }
 
+  // Null for a missing document or no access; throws when Liveblocks is unreachable, which the
+  // route's error screen handles with a retry
   const room = await getDocument({
     roomId: id,
-    userId: clerkUser.emailAddresses[0].emailAddress,
+    userId: sessionUser.email,
   });
 
   if (!room) {
@@ -32,9 +34,7 @@ const Document = async ({ params }: { params: Promise<{ id: string }> }) => {
     userType: room.usersAccesses[user.email]?.includes("room:write") ? "editor" : "viewer",
   }));
 
-  const currentUserType = room.usersAccesses[clerkUser.emailAddresses[0].emailAddress]?.includes(
-    "room:write",
-  )
+  const currentUserType = room.usersAccesses[sessionUser.email]?.includes("room:write")
     ? "editor"
     : "viewer";
 
