@@ -586,9 +586,9 @@ In `ViewMenu.tsx`, authors can toggle between three document presentations:
 - [x] Enforce `display: flow-root` for code/callout boxes and image max-height in `styles/editor/index.css`
 - [x] Eliminate editor DOM mutation plugins (`PagedEditorPlugin` removed for zero-flicker typing)
 - [x] Make the paged view the default for new documents, keeping the continuous canvas as a legacy option
-- [ ] Upgrade `@platen/engine` to 0.3 for sheet-for-sheet printing and PDF
-- [ ] Print in light colours when the app is in dark mode, restoring the theme afterwards
-- [ ] Hide editor chrome inside the document (floating menus, placeholder, image handles, table resizer, remote cursors) when printing
+- [x] Upgrade `@platen/engine` to 0.3 for sheet-for-sheet printing and PDF
+- [x] Print in light colours when the app is in dark mode, restoring the theme afterwards
+- [x] Hide editor chrome inside the document (floating menus, placeholder, image handles, remote cursors, comment highlights) when printing
 
 ### Files modified for Section 2.5
 

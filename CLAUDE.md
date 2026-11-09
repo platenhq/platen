@@ -53,6 +53,10 @@
   - Pagination bugs are fixed in the engine repo and released, not worked around here.
   - From engine 0.3, the engine handles print paper size, margins, gutters, zoom and hiding the
     rest of the page. Do not add print CSS for those, and never pass `printIsolated={false}`.
+  - Dark mode is screen-only: the `dark:` variant, the `.dark` tokens and the editor dark theme
+    are wrapped in `@media screen`, so print always uses the light colours without changing
+    the page. Keep new dark styles screen-only, and hide editor controls inside the document
+    with `print:hidden` or a scoped `@media print` rule, never by hiding content.
 - **Data**: Liveblocks rooms only; no application database yet (Postgres is Phase 3).
 - **Checks**: there is no test suite. Verify with `npm run typecheck`, `npm run lint` and
   `npm run format:check`, then in the browser at `localhost:3002`. CI also runs the build and
