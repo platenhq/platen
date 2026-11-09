@@ -8,7 +8,21 @@
 @import "../styles/liveblocks/index.css";
 @import "../styles/clerk/index.css";
 
-@custom-variant dark (&:where(.dark, .dark *));
+/* Dark mode is screen-only: printing always uses the light theme, without touching the page */
+@custom-variant dark {
+  @media screen {
+    &:where(.dark, .dark *) {
+      @slot;
+    }
+  }
+}
+
+@media print {
+  html {
+    /* next-themes sets an inline dark color-scheme, which would darken native controls */
+    color-scheme: light !important;
+  }
+}
 
 :root {
   /* Core Surface & Text */
@@ -47,36 +61,39 @@
   --page-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
 }
 
-.dark {
-  /* Dark Mode Slate/Obsidian Palette */
-  --background: #090d16;
-  --foreground: #f8fafc;
-  --surface: #0f172a;
-  --surface-hover: #1e293b;
-  --surface-secondary: #161f30;
-  /* Dark canvas surface (thumbnail previews, section bands) */
-  --surface-canvas: #0b1322;
-  --surface-canvas-hover: #0f172a;
+/* Screen-only, so printed documents keep the light tokens from :root */
+@media screen {
+  .dark {
+    /* Dark Mode Slate/Obsidian Palette */
+    --background: #090d16;
+    --foreground: #f8fafc;
+    --surface: #0f172a;
+    --surface-hover: #1e293b;
+    --surface-secondary: #161f30;
+    /* Dark canvas surface (thumbnail previews, section bands) */
+    --surface-canvas: #0b1322;
+    --surface-canvas-hover: #0f172a;
 
-  /* Elevated Dark Borders */
-  --border: #1e293b;
-  --border-hover: #334155;
+    /* Elevated Dark Borders */
+    --border: #1e293b;
+    --border-hover: #334155;
 
-  /* Brand Accents */
-  --primary: #00afdb;
-  --primary-hover: #38bdf8;
-  --primary-foreground: #ffffff;
-  --accent: #38bdf8;
+    /* Brand Accents */
+    --primary: #00afdb;
+    --primary-hover: #38bdf8;
+    --primary-foreground: #ffffff;
+    --accent: #38bdf8;
 
-  /* Text & Feedback */
-  --muted: #94a3b8;
-  --muted-foreground: #64748b;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
+    /* Text & Feedback */
+    --muted: #94a3b8;
+    --muted-foreground: #64748b;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
 
-  /* Document Page Layout Dark */
-  --page-bg: #0f172a;
-  --page-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.3);
+    /* Document Page Layout Dark */
+    --page-bg: #0f172a;
+    --page-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.3);
+  }
 }
 
 @theme {

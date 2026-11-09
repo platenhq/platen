@@ -1,12 +1,14 @@
 /* LEXICAL EDITOR STYLES */
-html.light .editor-code {
+/* Light colours are the default, and what prints; dark-theme.css overrides them on screen.
+   The html prefix outranks the base code-block rules in index.css. */
+html .editor-code {
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   color: #0f172a;
 }
 
-html.light .editor-code:before {
+html .editor-code:before {
   background-color: #f1f5f9;
   border-right: 1px solid #e2e8f0;
   color: #94a3b8;

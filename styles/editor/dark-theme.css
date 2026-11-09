@@ -1,13 +1,16 @@
 /* LEXICAL EDITOR STYLES */
-html.dark .editor-code {
-  background-color: #0f172a;
-  border: 1px solid #1e293b;
-  border-radius: 6px;
-  color: #f1f5f9;
-}
+/* Screen-only: printed documents use the light colours from light-theme.css */
+@media screen {
+  html.dark .editor-code {
+    background-color: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    color: #f1f5f9;
+  }
 
-html.dark .editor-code:before {
-  background-color: #0b1527;
-  border-right: 1px solid #1e293b;
-  color: #64748b;
+  html.dark .editor-code:before {
+    background-color: #0b1527;
+    border-right: 1px solid #1e293b;
+    color: #64748b;
+  }
 }
