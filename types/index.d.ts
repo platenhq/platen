@@ -23,6 +23,10 @@ declare type RoomMetadata = {
   creatorId: string;
   email: string;
   title: string;
+  /** First heading of the document, for its dashboard card. */
+  previewHeading?: string;
+  /** Opening body text of the document, for its dashboard card. */
+  preview?: string;
 };
 
 declare type AddDocumentBtnProps = {

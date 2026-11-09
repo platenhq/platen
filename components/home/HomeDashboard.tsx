@@ -64,6 +64,7 @@ export const HomeDashboard = ({ userId, email, roomDocuments }: HomeDashboardPro
       {/* Recent Documents Grid / List */}
       <HomeDocumentGrid
         documents={roomDocuments}
+        email={email}
         searchQuery={searchQuery}
         onClearSearch={() => setSearchQuery("")}
       />

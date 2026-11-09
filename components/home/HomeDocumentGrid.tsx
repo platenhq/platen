@@ -9,12 +9,15 @@ import { Button } from "@/components/ui/button";
 
 interface HomeDocumentGridProps {
   documents: RoomData[];
+  /** The signed-in user, to tell which documents they own. */
+  email: string;
   searchQuery: string;
   onClearSearch?: () => void;
 }
 
 export const HomeDocumentGrid = ({
   documents,
+  email,
   searchQuery,
   onClearSearch,
 }: HomeDocumentGridProps) => {
@@ -166,6 +169,9 @@ export const HomeDocumentGrid = ({
                 key={id}
                 id={id}
                 title={metadata?.title}
+                previewHeading={metadata?.previewHeading}
+                preview={metadata?.preview}
+                isOwner={metadata?.email === email}
                 createdAt={createdAt}
                 viewMode={viewMode}
               />

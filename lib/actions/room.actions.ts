@@ -3,6 +3,7 @@
 import { nanoid } from "nanoid";
 import { LiveblocksError } from "@liveblocks/node";
 import { liveblocks, withTimeout } from "@/lib/liveblocks";
+import { requireRoomAccess } from "@/lib/auth/room-access";
 import { revalidatePath } from "next/cache";
 import { getAccessType } from "@/lib/utils";
 import { redirect } from "next/navigation";
@@ -57,6 +58,8 @@ export const getDocument = async ({ roomId, userId }: { roomId: string; userId: 
 
 export const updateDocument = async (roomId: string, title: string) => {
   try {
+    await requireRoomAccess(roomId, "write");
+
     const updatedRoom = await liveblocks.updateRoom(roomId, {
       metadata: { title: title },
     });
@@ -90,6 +93,12 @@ export const updateDocumentAccess = async ({
   updatedBy,
 }: ShareDocumentParams) => {
   try {
+    const { metadata } = await requireRoomAccess(roomId, "write");
+    // The owner's own access never changes, or an editor could demote them
+    if (metadata.email === email) {
+      throw new Error("The document owner's access cannot be changed");
+    }
+
     const usersAccesses: RoomAccesses = {
       [email]: getAccessType(userType) as AccessType,
     };
@@ -126,10 +135,10 @@ export const updateDocumentAccess = async ({
 
 export const removeCollaborator = async ({ roomId, email }: { roomId: string; email: string }) => {
   try {
-    const room = await liveblocks.getRoom(roomId);
+    const { metadata } = await requireRoomAccess(roomId, "write");
 
-    if (room.metadata.email === email) {
-      throw new Error("You cannot remove yourself as a collaborator");
+    if (metadata.email === email) {
+      throw new Error("The document owner cannot be removed");
     }
 
     const updatedRoom = await liveblocks.updateRoom(roomId, {
@@ -146,8 +155,52 @@ export const removeCollaborator = async ({ roomId, email }: { roomId: string; em
   }
 };
 
+// Liveblocks caps each metadata value at 256 characters
+const PREVIEW_HEADING_MAX = 80;
+const PREVIEW_EXCERPT_MAX = 240;
+
+/** Collapses whitespace and cuts at a word boundary so the value fits room metadata. */
+function clampText(text: string, max: number): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max - 1);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${lastSpace > max / 2 ? cut.slice(0, lastSpace) : cut}…`;
+}
+
+/**
+ * Stores the first heading and opening text of a document for its dashboard card. Only the two
+ * preview fields change; title, owner and access lists are untouched.
+ */
+export const saveDocumentPreview = async ({
+  roomId,
+  heading,
+  excerpt,
+}: {
+  roomId: string;
+  heading: string;
+  excerpt: string;
+}) => {
+  try {
+    await requireRoomAccess(roomId, "write");
+    await withTimeout(
+      liveblocks.updateRoom(roomId, {
+        metadata: {
+          previewHeading: clampText(heading, PREVIEW_HEADING_MAX),
+          preview: clampText(excerpt, PREVIEW_EXCERPT_MAX),
+        },
+      }),
+    );
+    return true;
+  } catch (error) {
+    console.log(`Error saving document preview: ${error}`);
+    return false;
+  }
+};
+
 export const deleteDocument = async (roomId: string) => {
   try {
+    await requireRoomAccess(roomId, "owner");
     await liveblocks.deleteRoom(roomId);
     revalidatePath("/");
     redirect("/");

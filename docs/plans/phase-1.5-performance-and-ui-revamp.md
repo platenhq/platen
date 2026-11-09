@@ -89,7 +89,32 @@ editors) can be split into asynchronous chunks to reduce the initial JS parse co
 - [x] Lazy-load `CodeActionMenuPlugin` with `next/dynamic` (`{ ssr: false }`)
 - [x] Lazy-load `DraggableBlockPlugin` to keep primary editor canvas light
 - [x] Lazy-load `FloatingLinkEditorPlugin` with `next/dynamic` (`{ ssr: false }`)
-- [ ] Audit vendor chunk sizes on `/documents/[id]` using `ANALYZE=true npm run build`
+- [x] Audit vendor chunk sizes on `/documents/[id]` using `npm run analyze`
+
+### Bundle audit findings (2026-11-09)
+
+`/documents/[id]` first load: 743 kB (242 kB page chunk, 203 kB shared). Largest client packages,
+summed across chunks:
+
+| Package                                                       | Parsed |   Gzip | Notes                                                                         |
+| :------------------------------------------------------------ | -----: | -----: | :---------------------------------------------------------------------------- |
+| `next`                                                        | 597 kB | 249 kB | Framework; fixed cost                                                         |
+| Sentry (`replay`, `core`, `browser`, `nextjs`, `conventions`) | 510 kB | 177 kB | Replay alone is 182 kB parsed, bundled even though it only runs in production |
+| Liveblocks (`core`, `react-ui`, `react-lexical`)              | 405 kB | 142 kB | Collaboration and comments; needed                                            |
+| `slate` + `slate-react`                                       | 152 kB |  42 kB | Pulled in by the Liveblocks comment composer                                  |
+| `react-dom`                                                   | 174 kB |  55 kB | Framework; fixed cost                                                         |
+| `lexical`                                                     | 116 kB |  37 kB | Editor core; needed                                                           |
+| `@clerk/*`                                                    | 143 kB |  42 kB | Auth UI; needed                                                               |
+| `yjs`                                                         |  66 kB |  19 kB | Collaboration; needed                                                         |
+| `prismjs`                                                     |  55 kB |  23 kB | Code block highlighting                                                       |
+
+Recommendations, in order of payoff (not yet applied):
+
+1. Load Sentry Replay lazily after the page is interactive, or drop Replay: about 58 kB gzip.
+2. Load code highlighting (`prismjs`) only when a document contains a code block: about 23 kB
+   gzip.
+3. Load the comment UI (and with it `slate`) only when a document has comments or the user
+   opens the composer: about 40–60 kB gzip, but it touches the comment column.
 
 ### Files to modify for lexical bundle optimization
 

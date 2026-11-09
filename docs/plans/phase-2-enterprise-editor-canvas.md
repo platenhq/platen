@@ -694,11 +694,12 @@ To render a live preview of document content in the home dashboard card, we need
 
 ### Checklist for document previews
 
-- [ ] Extend `RoomMetadata` type with `preview?: string` and `previewHeading?: string`
-- [ ] Add a `saveDocumentPreview(roomId, preview, heading)` server action that calls `liveblocks.updateRoom()` to patch metadata
-- [ ] In the Lexical `Editor` component, add a debounced `OnChangePlugin` that reads plain-text content and fires `saveDocumentPreview` on change (max once per 30s)
-- [ ] Update `DocumentCard` to render `metadata.previewHeading` and `metadata.preview` when available, falling back to the current decorative placeholder
-- [ ] Ensure the preview text is truncated safely and does not expose private content to users who only have `room:read` access (server-side check)
+- [x] Extend `RoomMetadata` type with `preview?: string` and `previewHeading?: string`
+- [x] Add a `saveDocumentPreview` server action that checks write access and patches only the two preview fields
+- [x] Add `DocumentPreviewPlugin` for editors: saves after a 3s pause in local edits, at most once per 30s, and on leaving the page
+- [x] Update `DocumentCard` to render `metadata.previewHeading` and `metadata.preview` when available, falling back to the current decorative placeholder
+- [x] Cap the heading at 80 and the excerpt at 240 characters (Liveblocks metadata values hold 256); previews are only listed to users who can open the document
+- [x] Require write or owner access in every room server action, and show the delete button only to the document owner
 
 ### Files to modify for document previews
 
@@ -715,25 +716,27 @@ components/ui/home/DocumentCard.tsx               (preview rendering)
 
 ### Canvas, Ruler & Layout
 
-- [ ] The editor renders as a white page (816px wide) centered on a gray viewport background
-- [ ] A horizontal ruler sits above the page with correct inch markings and shaded margin zones
-- [ ] Page canvas has drop shadow and padding in both dark and light mode
-- [ ] Page size, orientation, and margin changes apply immediately to the canvas and persist in Liveblocks metadata
+- [x] The editor renders as a white page (816px wide) centered on a gray viewport background
+- [x] A horizontal ruler sits above the page with correct inch markings and shaded margin zones
+- [x] Page canvas has drop shadow and padding in both dark and light mode
+- [x] Page size and margin changes apply immediately to the canvas and sync to collaborators (Liveblocks Storage)
+- [ ] Page orientation (portrait / landscape) — not built yet
 
 ### Toolbar & Formatting
 
-- [ ] Text color and highlight color pickers open dropdowns with preset palette and custom color modal
-- [ ] Line & Paragraph spacing applies line height and paragraph margins correctly
-- [ ] List style dropdowns provide bullet and numbering style grids
-- [ ] Format dropdown includes Title Case text transform, strikethrough, superscript, and subscript
-- [ ] Clear Formatting button strips inline styling
+- [x] Text color and highlight color pickers open dropdowns with preset palette and custom color modal
+- [x] Line & Paragraph spacing applies line height and paragraph margins correctly
+- [x] List style dropdowns provide bullet and numbering style grids
+- [x] Format dropdown includes Title Case text transform, strikethrough, superscript, and subscript
+- [x] Clear Formatting button strips inline styling
 
 ### Insert Experience & Sidebar
 
-- [ ] Curated Insert dropdown inserts Image, Table, HR, Page Break, and Embeds correctly
-- [ ] Custom nodes serialize to and from Lexical JSON for Liveblocks persistence
-- [ ] Comment threads are spatially anchored to the right margin column beside the page
-- [ ] Document outline sidebar renders H1/H2/H3 headings and scrolls on click
+- [x] Curated Insert dropdown inserts Image, Table, HR, Page Break, and Embeds correctly
+- [x] Custom nodes serialize to and from Lexical JSON for Liveblocks persistence
+- [x] Comment threads are spatially anchored to the right margin column beside the page
+- [x] Document outline sidebar renders H1/H2/H3 headings and scrolls on click
+- [x] Dashboard cards show each document's first heading and opening text
 
 ---
 

@@ -65,6 +65,15 @@
   `withTimeout` in `lib/liveblocks.ts`) and `app/(root)/error.tsx` offers a retry; a missing
   document or missing access returns null. Read the signed-in user with `getSessionUser()`
   (`lib/auth/session.ts`), not `currentUser()`.
+- **Room actions**: server actions are public endpoints, so every action that changes a room
+  calls `requireRoomAccess(roomId, "write" | "owner")` (`lib/auth/room-access.ts`) first, never
+  relying on the UI hiding a control. Editors may rename, share and change roles; only the
+  owner may delete; the owner's own access can never be changed or removed.
+- **Dashboard previews**: `DocumentPreviewPlugin` (editors only, local edits only) saves the
+  first heading and opening text to room metadata (`previewHeading`, `preview`; Liveblocks caps
+  metadata values at 256 characters).
+- **Bundle size**: `npm run analyze` runs a production build with the bundle analyzer (stop the
+  dev server first; both use `.next`).
 - **Data**: Liveblocks rooms only; no application database yet (Postgres is Phase 3).
 - **Checks**: there is no test suite. Verify with `npm run typecheck`, `npm run lint` and
   `npm run format:check`, then in the browser at `localhost:3002`. CI also runs the build and

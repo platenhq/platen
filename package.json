@@ -28,7 +28,8 @@
     "security:audit:fix": "npm audit fix",
     "security:outdated": "npm outdated",
     "reset": "npx -y rimraf .next node_modules package-lock.json && npm install",
-    "prepare": "husky"
+    "prepare": "husky",
+    "analyze": "node scripts/analyze.mjs"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -77,6 +78,7 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
+    "@next/bundle-analyzer": "^15.5.29",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^20",
