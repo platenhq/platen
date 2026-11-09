@@ -182,6 +182,10 @@ Page Shell (Sticky Header + Search + Tab Navigation + Create Button) — Renders
 - [ ] Implement document search bar and sorting options (Last modified, Title, Date created)
 - [ ] Add Grid and List view switcher for document cards
 - [ ] Build document action menu: Rename, Star, Duplicate, Move to Folder, Move to Trash
+- [ ] Render first-page thumbnails on document cards, as in Google Docs: the card shows the
+      document's first page from `content_html` at thumbnail scale with the editor's own styles
+      (fonts, headings, lists, tables, images). Replaces the Phase 2.8 text preview, which stays
+      as the fallback for documents without saved HTML
 
 ### Files to create/modify for multi-tenant dashboard
 
