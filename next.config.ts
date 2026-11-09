@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     reactCompiler: true,
+    serverActions: {
+      // Document snapshots carry the full editor state, including pasted images stored inline
+      bodySizeLimit: "5mb",
+    },
   },
 };
 

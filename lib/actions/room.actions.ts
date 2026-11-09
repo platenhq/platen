@@ -4,6 +4,12 @@ import { nanoid } from "nanoid";
 import { LiveblocksError } from "@liveblocks/node";
 import { liveblocks, withTimeout } from "@/lib/liveblocks";
 import { requireRoomAccess } from "@/lib/auth/room-access";
+import {
+  recordDocumentCreated,
+  recordDocumentDeleted,
+  recordDocumentTitle,
+  saveDocumentSnapshotRow,
+} from "@/lib/db/documents";
 import { revalidatePath } from "next/cache";
 import { getAccessType } from "@/lib/utils";
 import { redirect } from "next/navigation";
@@ -27,6 +33,7 @@ export const createDoc = async ({ userId, email }: CreateDocumentParams) => {
       usersAccesses: userAccesses,
       defaultAccesses: [],
     });
+    await recordDocumentCreated({ id: roomId, title: metadata.title, ownerEmail: email });
 
     revalidatePath("/");
 
@@ -63,6 +70,7 @@ export const updateDocument = async (roomId: string, title: string) => {
     const updatedRoom = await liveblocks.updateRoom(roomId, {
       metadata: { title: title },
     });
+    await recordDocumentTitle(roomId, title);
 
     revalidatePath(`/documents/${roomId}`);
 
@@ -169,20 +177,24 @@ function clampText(text: string, max: number): string {
 }
 
 /**
- * Stores the first heading and opening text of a document for its dashboard card. Only the two
- * preview fields change; title, owner and access lists are untouched.
+ * Saves an editor's snapshot of a document: the dashboard preview (first heading and opening
+ * text) in room metadata, and the full content (editor JSON, plain text, HTML) in the database.
+ * Only the preview fields of the metadata change; title, owner and access lists are untouched.
+ * `content` is null when the document was too large to send.
  */
-export const saveDocumentPreview = async ({
+export const saveDocumentSnapshot = async ({
   roomId,
   heading,
   excerpt,
+  content,
 }: {
   roomId: string;
   heading: string;
   excerpt: string;
+  content: { json: string; text: string; html: string } | null;
 }) => {
   try {
-    await requireRoomAccess(roomId, "write");
+    const { metadata } = await requireRoomAccess(roomId, "write");
     await withTimeout(
       liveblocks.updateRoom(roomId, {
         metadata: {
@@ -191,9 +203,20 @@ export const saveDocumentPreview = async ({
         },
       }),
     );
+
+    if (content) {
+      await saveDocumentSnapshotRow(
+        { id: roomId, title: metadata.title, ownerEmail: metadata.email },
+        {
+          contentJson: JSON.parse(content.json),
+          contentText: content.text,
+          contentHtml: content.html,
+        },
+      );
+    }
     return true;
   } catch (error) {
-    console.log(`Error saving document preview: ${error}`);
+    console.log(`Error saving document snapshot: ${error}`);
     return false;
   }
 };
@@ -202,6 +225,7 @@ export const deleteDocument = async (roomId: string) => {
   try {
     await requireRoomAccess(roomId, "owner");
     await liveblocks.deleteRoom(roomId);
+    await recordDocumentDeleted(roomId);
     revalidatePath("/");
     redirect("/");
   } catch (error) {
