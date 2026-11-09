@@ -674,3 +674,21 @@ pre::-webkit-scrollbar-thumb {
 .platen-engine-canvas .editor-input img {
   max-height: var(--platen-usable-height);
 }
+
+/* Paper, margins, gutters, zoom and the rest of the page are handled by @platen/engine.
+   These rules only remove editor controls that live inside the printed document. */
+@media print {
+  /* Floating menus mounted inside the editor, and the empty-document placeholder */
+  .platen-engine-canvas .editor > :not(.editor-input),
+  .platen-engine-canvas .editor-placeholder,
+  /* Remote collaborator cursors */
+  .lb-lexical-cursors {
+    display: none !important;
+  }
+
+  /* Comment highlights are annotations, not content: keep the text, drop the highlight */
+  .platen-engine-canvas .lb-lexical-thread-mark {
+    background: none !important;
+    border: 0 !important;
+  }
+}

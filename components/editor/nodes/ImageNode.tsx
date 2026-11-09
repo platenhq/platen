@@ -456,7 +456,7 @@ function ImageComponent({
       {/* ── WRAPPER: the ONLY element that carries pixel dimensions ── */}
       <div
         ref={wrapperRef}
-        className={`relative inline-block ${
+        className={`relative inline-block print:outline-none ${
           isFocused
             ? "outline outline-offset-1 outline-blue-600"
             : "hover:outline-1 hover:outline-blue-400/60 hover:outline-dashed"
@@ -489,7 +489,7 @@ function ImageComponent({
         {isFocused && (
           <div
             ref={toolbarRef}
-            className="border-border/60 text-foreground absolute -bottom-11 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1 rounded-lg border bg-white px-2 py-1 shadow-lg select-none dark:bg-zinc-900"
+            className="border-border/60 text-foreground absolute -bottom-11 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1 rounded-lg border bg-white px-2 py-1 shadow-lg select-none dark:bg-zinc-900 print:hidden"
             onMouseDown={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -592,7 +592,8 @@ function ImageComponent({
 
         {/* ── 8-POINT RESIZE HANDLES ── */}
         {isFocused && (
-          <>
+          // Static wrapper: the handles still position against the image wrapper
+          <div className="print:hidden">
             {/* Corners */}
             <div
               className="absolute -top-1.5 -left-1.5 z-20 size-2.5 cursor-nwse-resize touch-none rounded-[1px] border border-white bg-blue-600 shadow-xs select-none"
@@ -628,7 +629,7 @@ function ImageComponent({
               className="absolute -bottom-1.5 left-1/2 z-20 size-2.5 -translate-x-1/2 cursor-ns-resize touch-none rounded-[1px] border border-white bg-blue-600 shadow-xs select-none"
               onPointerDown={(e) => handleResizePointerDown(e, Direction.south)}
             />
-          </>
+          </div>
         )}
       </div>
     </div>
