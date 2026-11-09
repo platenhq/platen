@@ -18,6 +18,7 @@ import ClerkSignedInUserButton from "@/components/shared/ClerkSignedInUserButton
 import Notifications from "@/components/liveblocks/Notifications";
 import NotificationsErrorBoundary from "@/components/liveblocks/NotificationsErrorBoundary";
 import { ToggleTheme } from "@/components/shared/ToggleTheme";
+import SaveStatus from "@/components/collaborators/SaveStatus";
 
 function ConnectionStatusBadge() {
   const status = useStatus();
@@ -180,9 +181,8 @@ const CollaborativeRoom = ({
                   </span>
                 )}
 
-                {loading && (
-                  <span className="text-muted shrink-0 animate-pulse text-xs">Saving...</span>
-                )}
+                {/* Edits and title changes share one save indicator; viewers cannot change anything */}
+                {currentUserType === "editor" && <SaveStatus savingTitle={loading} />}
               </div>
             </div>
 

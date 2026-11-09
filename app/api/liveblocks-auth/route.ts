@@ -1,4 +1,5 @@
 import { liveblocks } from "@/lib/liveblocks";
+import { upsertUser } from "@/lib/db/documents";
 import { getUserColor } from "@/lib/utils";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 
@@ -89,6 +90,8 @@ export async function POST() {
 
     // Save in cache
     userCache.set(userId, { ...userInfo, cachedAt: Date.now() });
+    // Keep the users table current; skipped when no real email is known
+    if (userInfo.email !== userId) await upsertUser(userInfo);
 
     // Identify user in Liveblocks session
     const { status, body } = await liveblocks.identifyUser(

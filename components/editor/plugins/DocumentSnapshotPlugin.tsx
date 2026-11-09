@@ -2,23 +2,30 @@
 
 import { useEffect } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { $generateHtmlFromNodes } from "@lexical/html";
 import { $isHeadingNode } from "@lexical/rich-text";
 import { $getRoot, type LexicalEditor } from "lexical";
-import { saveDocumentPreview } from "@/lib/actions/room.actions";
+import { saveDocumentSnapshot } from "@/lib/actions/room.actions";
 
 // Save after typing pauses, but never more often than the minimum interval
 const IDLE_DELAY_MS = 3_000;
 const MIN_INTERVAL_MS = 30_000;
 // Read a little more than the server keeps, so it can cut at a word boundary
 const EXCERPT_READ_LENGTH = 300;
+// Stay under the server action body limit (next.config.ts). Pasted images are stored inline in
+// the document, so a few large ones can exceed it; the preview is still saved in that case.
+const MAX_CONTENT_BYTES = 4 * 1024 * 1024;
 
-interface PreviewSnapshot {
+interface Snapshot {
   heading: string;
   excerpt: string;
+  json: string;
+  text: string;
+  html: string;
 }
 
-function readSnapshot(editor: LexicalEditor): PreviewSnapshot {
-  return editor.getEditorState().read(() => {
+function readSnapshot(editor: LexicalEditor): Snapshot {
+  return editor.read(() => {
     let heading = "";
     let excerpt = "";
     for (const node of $getRoot().getChildren()) {
@@ -28,24 +35,30 @@ function readSnapshot(editor: LexicalEditor): PreviewSnapshot {
         if (!heading) heading = text;
         continue;
       }
-      excerpt = excerpt ? `${excerpt} ${text}` : text;
-      if (excerpt.length >= EXCERPT_READ_LENGTH) break;
+      if (excerpt.length < EXCERPT_READ_LENGTH) excerpt = excerpt ? `${excerpt} ${text}` : text;
     }
-    return { heading, excerpt: excerpt.slice(0, EXCERPT_READ_LENGTH) };
+    return {
+      heading,
+      excerpt: excerpt.slice(0, EXCERPT_READ_LENGTH),
+      json: JSON.stringify(editor.getEditorState().toJSON()),
+      text: $getRoot().getTextContent(),
+      html: $generateHtmlFromNodes(editor, null),
+    };
   });
 }
 
 /**
- * Keeps the dashboard card preview in step with the document. Saves the first heading and the
- * opening text after local edits, throttled, and once more when the editor goes away. Mounted for
- * editors only; remote edits are left to the collaborator who made them.
+ * Saves a snapshot of the document while an editor works in it: the dashboard preview and the
+ * full content for the database. Saves after local edits, throttled, and once more when the
+ * editor goes away. Mounted for editors only; remote edits are left to the collaborator who made
+ * them.
  */
-export default function DocumentPreviewPlugin({ roomId }: { roomId: string }) {
+export default function DocumentSnapshotPlugin({ roomId }: { roomId: string }) {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
     // Opening a document without editing it saves nothing
-    let lastSaved = JSON.stringify(readSnapshot(editor));
+    let lastSavedJson = readSnapshot(editor).json;
     let lastSentAt = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let pending = false;
@@ -53,12 +66,18 @@ export default function DocumentPreviewPlugin({ roomId }: { roomId: string }) {
     const save = () => {
       clearTimeout(timer);
       pending = false;
-      const snapshot = readSnapshot(editor);
-      const serialized = JSON.stringify(snapshot);
-      if (serialized === lastSaved) return;
-      lastSaved = serialized;
+      const { heading, excerpt, json, text, html } = readSnapshot(editor);
+      if (json === lastSavedJson) return;
+      lastSavedJson = json;
       lastSentAt = Date.now();
-      void saveDocumentPreview({ roomId, ...snapshot });
+
+      const size = new Blob([json, html]).size;
+      void saveDocumentSnapshot({
+        roomId,
+        heading,
+        excerpt,
+        content: size <= MAX_CONTENT_BYTES ? { json, text, html } : null,
+      });
     };
 
     const schedule = () => {

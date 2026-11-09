@@ -112,7 +112,24 @@ CREATE TABLE starred_documents (
 );
 ```
 
-### 3.1.B Document Persistence Pipeline & Anti-Wipeout Engine
+### 3.1.A Agreed architecture (2026-11-09)
+
+The original design below made Postgres the authoritative copy, seeding Liveblocks rooms from it
+on every open. It was replaced before implementation:
+
+- **Liveblocks stays the live source** of every document; nothing seeds rooms from Postgres.
+- **Postgres holds snapshots**: one `documents` row per room with the latest editor JSON, plain
+  text and HTML, saved by editors through `saveDocumentSnapshot`. They feed previews,
+  thumbnails, search, exports and version history.
+- **Recovery is explicit**: restoring loads a snapshot into the editor, which syncs to
+  collaborators through Liveblocks like any edit.
+- An empty snapshot never replaces a non-empty one, which covers documents saved before they
+  finished loading.
+- Host: Neon (`production` and `dev` branches); ORM: Drizzle with committed SQL migrations.
+- If a server-side sync is added later, the Liveblocks event is `ydocUpdated` (documents live in
+  Yjs), not `storageUpdated`.
+
+### 3.1.B Original persistence design (superseded by 3.1.A)
 
 1. **Hydration on Document Open (`/documents/[id]`):**
    - Next.js Server Component queries `documents` directly from Postgres.
@@ -135,12 +152,13 @@ CREATE TABLE starred_documents (
 
 ### Checklist for database schema
 
-- [ ] Set up Drizzle ORM (or Prisma) with Postgres connection pooling
-- [ ] Define database schema tables: `users`, `documents`, `document_versions`, `document_permissions`, `folders`, `starred_documents`
-- [ ] Implement `saveDocumentContent` server action with Anti-Wipeout validation
-- [ ] Implement document hydration pipeline: seed Liveblocks rooms from Postgres `content_json`
-- [ ] Create database migration scripts and seed utilities
-- [ ] Connect Liveblocks session-end webhooks to Postgres auto-flushing
+- [x] Set up Drizzle ORM with Neon Postgres (pooled serverless driver)
+- [x] Define `users` and `documents` tables (M1); `document_versions`, `document_permissions`, `folders` and `starred_documents` arrive with the milestones that use them
+- [x] Implement `saveDocumentSnapshot` with an empty-over-non-empty guard
+- [x] Keep `documents` rows in step with room creation, renames and deletion; upsert `users` from the Liveblocks auth route
+- [x] Create committed SQL migrations (`npm run db:generate` / `db:migrate`) and a backfill script for existing rooms (`npm run db:backfill`)
+- [ ] ~~Seed Liveblocks rooms from Postgres~~ — dropped, see 3.1.A
+- [ ] Optional: rebuild snapshots on the server from the Liveblocks `ydocUpdated` webhook
 
 ### Files to create/modify for database schema
 

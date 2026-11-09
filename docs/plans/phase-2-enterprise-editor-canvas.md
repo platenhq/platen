@@ -696,7 +696,7 @@ To render a live preview of document content in the home dashboard card, we need
 
 - [x] Extend `RoomMetadata` type with `preview?: string` and `previewHeading?: string`
 - [x] Add a `saveDocumentPreview` server action that checks write access and patches only the two preview fields
-- [x] Add `DocumentPreviewPlugin` for editors: saves after a 3s pause in local edits, at most once per 30s, and on leaving the page
+- [x] Add `DocumentPreviewPlugin` (since renamed `DocumentSnapshotPlugin`) for editors: saves after a 3s pause in local edits, at most once per 30s, and on leaving the page
 - [x] Update `DocumentCard` to render `metadata.previewHeading` and `metadata.preview` when available, falling back to the current decorative placeholder
 - [x] Cap the heading at 80 and the excerpt at 240 characters (Liveblocks metadata values hold 256); previews are only listed to users who can open the document
 - [x] Require write or owner access in every room server action, and show the delete button only to the document owner

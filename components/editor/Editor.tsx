@@ -50,7 +50,7 @@ import { PageBreakPlugin } from "./plugins/PageBreakPlugin";
 import CalloutPlugin from "./plugins/CalloutPlugin";
 import MediaEmbedPlugin from "./plugins/MediaEmbedPlugin";
 import ImagesPlugin from "./plugins/ImagesPlugin";
-import DocumentPreviewPlugin from "./plugins/DocumentPreviewPlugin";
+import DocumentSnapshotPlugin from "./plugins/DocumentSnapshotPlugin";
 import MenuBar from "./menubar/MenuBar";
 
 export function Editor({ roomId, currentUserType }: Editorprops) {
@@ -129,7 +129,7 @@ export function Editor({ roomId, currentUserType }: Editorprops) {
                     ErrorBoundary={LexicalErrorBoundary}
                   />
                   {currentUserType === "editor" && <FloatingToolbarPlugin />}
-                  {currentUserType === "editor" && <DocumentPreviewPlugin roomId={roomId} />}
+                  {currentUserType === "editor" && <DocumentSnapshotPlugin roomId={roomId} />}
                   <AutoFocusPlugin />
                   <EditorSanitizerPlugin />
                   <ListPlugin />
