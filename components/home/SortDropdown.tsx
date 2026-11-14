@@ -10,7 +10,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, Check } from "lucide-react";
 
-export type SortOption = "created_desc" | "created_asc" | "title_asc" | "title_desc";
+export type SortOption =
+  "modified_desc" | "created_desc" | "created_asc" | "title_asc" | "title_desc";
 
 interface SortDropdownProps {
   value: SortOption;
@@ -18,6 +19,7 @@ interface SortDropdownProps {
 }
 
 const SORT_LABELS: Record<SortOption, string> = {
+  modified_desc: "Last modified",
   created_desc: "Last created",
   created_asc: "Oldest first",
   title_asc: "Title (A-Z)",

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "@/components/shared/Header";
 import Notifications from "@/components/liveblocks/Notifications";
 import NotificationsErrorBoundary from "@/components/liveblocks/NotificationsErrorBoundary";
@@ -8,17 +8,50 @@ import ClerkSignedInUserButton from "@/components/shared/ClerkSignedInUserButton
 import { ToggleTheme } from "@/components/shared/ToggleTheme";
 import NewDocumentSection from "@/components/home/NewDocumentSection";
 import HomeDocumentGrid from "@/components/home/HomeDocumentGrid";
-import { RoomData } from "@liveblocks/node";
+import { searchDocuments } from "@/lib/actions/room.actions";
+import { excerptHasMatch } from "@/lib/search-excerpt";
 import { Search, X } from "lucide-react";
+
+// Search the document text once typing pauses; titles are filtered on every keystroke
+const SEARCH_DELAY_MS = 250;
 
 interface HomeDashboardProps {
   userId: string;
   email: string;
-  roomDocuments: RoomData[];
+  documents: DashboardDocument[];
 }
 
-export const HomeDashboard = ({ userId, email, roomDocuments }: HomeDashboardProps) => {
+export const HomeDashboard = ({ userId, email, documents }: HomeDashboardProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  // Server results for one query: an excerpt per matching document, empty for title-only matches
+  const [searchResults, setSearchResults] = useState<{
+    query: string;
+    excerpts: Record<string, string>;
+  } | null>(null);
+
+  useEffect(() => {
+    const query = searchQuery.trim();
+    if (!query) return;
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      const results = await searchDocuments(query);
+      if (cancelled || !results) return;
+      setSearchResults({
+        query,
+        excerpts: Object.fromEntries(
+          results.map(({ id, excerpt }) => [id, excerptHasMatch(excerpt) ? excerpt : ""]),
+        ),
+      });
+    }, SEARCH_DELAY_MS);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [searchQuery]);
+
+  // Results for an earlier query are not shown while the current one is pending
+  const searchExcerpts =
+    searchResults?.query === searchQuery.trim() ? searchResults.excerpts : null;
 
   return (
     <main className="bg-background text-foreground relative flex min-h-screen w-full flex-col transition-colors">
@@ -63,9 +96,9 @@ export const HomeDashboard = ({ userId, email, roomDocuments }: HomeDashboardPro
 
       {/* Recent Documents Grid / List */}
       <HomeDocumentGrid
-        documents={roomDocuments}
-        email={email}
+        documents={documents}
         searchQuery={searchQuery}
+        searchExcerpts={searchExcerpts}
         onClearSearch={() => setSearchQuery("")}
       />
     </main>
