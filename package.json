@@ -80,6 +80,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-spinners": "^0.15.0",
+    "sanitize-html": "^2.18.2",
     "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
@@ -91,6 +92,7 @@
     "@types/node": "^20",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/sanitize-html": "^2.16.2",
     "babel-plugin-react-compiler": "^1.0.0",
     "drizzle-kit": "^0.31.11",
     "eslint": "^8",
