@@ -1,7 +1,7 @@
 "use server";
 
 import { nanoid } from "nanoid";
-import { LiveblocksError } from "@liveblocks/node";
+import { LiveblocksError, type RoomData } from "@liveblocks/node";
 import { liveblocks, withTimeout } from "@/lib/liveblocks";
 import { requireRoomAccess } from "@/lib/auth/room-access";
 import {
@@ -9,7 +9,11 @@ import {
   recordDocumentDeleted,
   recordDocumentTitle,
   saveDocumentSnapshotRow,
+  searchDocumentRows,
 } from "@/lib/db/documents";
+import { sanitizeDocumentHtml, sanitizePreviewHtml } from "@/lib/html/sanitize";
+import { getSessionUser } from "@/lib/auth/session";
+import { DEFAULT_PAGE_SETUP, isMarginPreset, isPaperSize } from "@/lib/page-setup";
 import { revalidatePath } from "next/cache";
 import { getAccessType } from "@/lib/utils";
 import { redirect } from "next/navigation";
@@ -80,13 +84,22 @@ export const updateDocument = async (roomId: string, title: string) => {
   }
 };
 
+/** Every room the user can open. Liveblocks returns at most 100 rooms per request. */
+async function listUserRooms(email: string): Promise<RoomData[]> {
+  const rooms: RoomData[] = [];
+  for await (const room of liveblocks.iterRooms({ userId: email }, { pageSize: 100 })) {
+    rooms.push(room);
+  }
+  return rooms;
+}
+
 /**
  * Throws when Liveblocks cannot be reached, so the dashboard shows a retryable error instead of
  * an empty document list that looks like the documents are gone.
  */
-export const getDocuments = async (email: string) => {
+export const getDocuments = async (email: string): Promise<RoomData[]> => {
   try {
-    const rooms = await withTimeout(liveblocks.getRooms({ userId: email }));
+    const rooms = await withTimeout(listUserRooms(email));
     return JSON.parse(JSON.stringify(rooms));
   } catch (error) {
     console.error(`Error getting document rooms: ${error}`);
@@ -178,9 +191,11 @@ function clampText(text: string, max: number): string {
 
 /**
  * Saves an editor's snapshot of a document: the dashboard preview (first heading and opening
- * text) in room metadata, and the full content (editor JSON, plain text, HTML) in the database.
- * Only the preview fields of the metadata change; title, owner and access lists are untouched.
- * `content` is null when the document was too large to send.
+ * text) in room metadata, and the full content (editor JSON, plain text, HTML, the HTML of the
+ * opening blocks for the thumbnail, and the page setup) in the database. HTML is sanitized here,
+ * since the request comes from a browser. Only the preview fields of the metadata change; title,
+ * owner and access lists are untouched. `content` is null when the document was too large to
+ * send.
  */
 export const saveDocumentSnapshot = async ({
   roomId,
@@ -191,7 +206,14 @@ export const saveDocumentSnapshot = async ({
   roomId: string;
   heading: string;
   excerpt: string;
-  content: { json: string; text: string; html: string } | null;
+  content: {
+    json: string;
+    text: string;
+    html: string;
+    previewHtml: string;
+    pageSize: string;
+    margins: string;
+  } | null;
 }) => {
   try {
     const { metadata } = await requireRoomAccess(roomId, "write");
@@ -210,7 +232,12 @@ export const saveDocumentSnapshot = async ({
         {
           contentJson: JSON.parse(content.json),
           contentText: content.text,
-          contentHtml: content.html,
+          contentHtml: sanitizeDocumentHtml(content.html),
+          previewHtml: sanitizePreviewHtml(content.previewHtml),
+          pageSize: isPaperSize(content.pageSize) ? content.pageSize : DEFAULT_PAGE_SETUP.pageSize,
+          pageMargins: isMarginPreset(content.margins)
+            ? content.margins
+            : DEFAULT_PAGE_SETUP.margins,
         },
       );
     }
@@ -218,6 +245,27 @@ export const saveDocumentSnapshot = async ({
   } catch (error) {
     console.log(`Error saving document snapshot: ${error}`);
     return false;
+  }
+};
+
+/**
+ * Searches the titles and text of the documents the signed-in user can open. Returns null when
+ * search is unavailable, so the dashboard keeps filtering titles itself.
+ */
+export const searchDocuments = async (query: string) => {
+  try {
+    const user = await getSessionUser();
+    if (!user) return null;
+
+    // Access comes from Liveblocks; the database only searches within the user's rooms
+    const rooms = await withTimeout(listUserRooms(user.email));
+    return await searchDocumentRows(
+      rooms.map((room) => room.id),
+      query.slice(0, 200),
+    );
+  } catch (error) {
+    console.error(`Error searching documents: ${error}`);
+    return null;
   }
 };
 

@@ -195,13 +195,13 @@ Page Shell (Sticky Header + Search + Tab Navigation + Create Button) — Renders
 
 ### Checklist for multi-tenant dashboard
 
-- [ ] Rebuild home page (`app/(root)/page.tsx`) with dynamic tab filtering (_All_, _Owned by me_, _Shared with me_, _Recent_, _Trash_)
+- [x] Rebuild home page (`app/(root)/page.tsx`) with tab filtering (_All_, _Owned by me_, _Shared with me_); _Recent_ is the default "Last modified" sort; _Trash_ ships with organization (M3)
 - [ ] Wrap dashboard tab views in per-section `<Suspense>` boundaries with skeleton placeholders for streaming SSR
-- [ ] Implement document search bar and sorting options (Last modified, Title, Date created)
-- [ ] Add Grid and List view switcher for document cards
+- [x] Implement document search bar and sorting options (Last modified, Title, Date created)
+- [x] Add Grid and List view switcher for document cards
 - [ ] Build document action menu: Rename, Star, Duplicate, Move to Folder, Move to Trash
-- [ ] Render first-page thumbnails on document cards, as in Google Docs: the card shows the
-      document's first page from `content_html` at thumbnail scale with the editor's own styles
+- [x] Render first-page thumbnails on document cards, as in Google Docs: the card shows the
+      document's first page from `preview_html` (sanitized opening blocks) with the editor's styles
       (fonts, headings, lists, tables, images). Replaces the Phase 2.8 text preview, which stays
       as the fallback for documents without saved HTML
 
@@ -329,8 +329,8 @@ Enable instant search across all documents.
 
 ### Checklist for document search
 
-- [ ] Implement fast title search via Postgres indexed queries
-- [ ] Add plain-text content indexing in Postgres using `tsvector` on document save
+- [x] Implement fast title search via Postgres queries (prefix matching, limited to rooms the user can open)
+- [x] Add plain-text content indexing in Postgres using `tsvector` on document save (generated `search_vector` column with a GIN index; dashboard search shows highlighted excerpts)
 - [ ] Build global `Cmd+K` / `Ctrl+K` search modal with instant results and highlight snippets
 
 ### Files to create/modify for document search

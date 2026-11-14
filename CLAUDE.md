@@ -72,7 +72,15 @@
 - **Document snapshots**: `DocumentSnapshotPlugin` (editors only, local edits only, 3s idle, at
   most every 30s, and on leaving the page) calls `saveDocumentSnapshot`, which writes the
   dashboard preview to room metadata (`previewHeading`, `preview`; Liveblocks caps metadata
-  values at 256 characters) and the full content (editor JSON, text, HTML) to the database.
+  values at 256 characters) and the full content (editor JSON, text, HTML, the HTML of the
+  opening blocks and the page setup) to the database. All stored HTML is sanitized on the server
+  (`lib/html/sanitize.ts`, an allowlist of what the editor produces); new editor classes or
+  inline styles must be added there or they are dropped from saved HTML.
+- **Dashboard**: `app/(root)/page.tsx` lists every room the user can open from Liveblocks (the
+  source of access) and joins each with its database row for the thumbnail and the last-modified
+  time. `DocumentThumbnail` renders the saved opening blocks at the document's paper size with
+  the editor CSS, scaled to the card. Search (`searchDocuments`) runs Postgres full-text search
+  over the user's own room ids only; without a database it falls back to filtering titles.
 - **Bundle size**: `npm run analyze` runs a production build with the bundle analyzer (stop the
   dev server first; both use `.next`).
 - **Data**: Liveblocks holds the live documents. Postgres (Neon, Drizzle ORM, `lib/db/`) holds

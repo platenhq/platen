@@ -29,6 +29,24 @@ declare type RoomMetadata = {
   preview?: string;
 };
 
+/** A document as the dashboard shows it: the room joined with its saved snapshot, if any. */
+declare type DashboardDocument = {
+  id: string;
+  title: string;
+  previewHeading?: string;
+  preview?: string;
+  isOwner: boolean;
+  /** Whether anyone besides the owner has access. */
+  isShared: boolean;
+  createdAt: string;
+  /** When an editor last saved a snapshot, else when the room was last opened. */
+  modifiedAt: string;
+  /** Sanitized HTML of the opening blocks, rendered as the card thumbnail. */
+  thumbnailHtml: string | null;
+  pageSize: string | null;
+  pageMargins: string | null;
+};
+
 declare type AddDocumentBtnProps = {
   userId: string;
   email: string;
